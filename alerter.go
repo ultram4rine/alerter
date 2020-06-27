@@ -61,13 +61,16 @@ func makeHandler(alertChan chan<- Alert) func(http.ResponseWriter, *http.Request
 		switch r.Method {
 		case "POST":
 			decoder := json.NewDecoder(r.Body)
-			var a Alert
-			err := decoder.Decode(&a)
+			var wh WebHook
+			err := decoder.Decode(&wh)
 			if err != nil {
 				log.Errorf("failed to decode request body: %s", err)
 			} else {
-				alertChan <- a
-				log.Infof("hello from http: %s", a.User)
+				for _, a := range wh.Alerts {
+					alertChan <- a
+					log.Infof("hello from http: %s", a.Status)
+
+				}
 			}
 
 		default:
@@ -77,10 +80,9 @@ func makeHandler(alertChan chan<- Alert) func(http.ResponseWriter, *http.Request
 }
 
 func tgBotHandleAlerts(bot *tgbotapi.BotAPI, alertChan <-chan Alert) {
-	for {
-		a := <-alertChan
-		log.Infof("hello from telegram: %s", a.User)
-		msg := tgbotapi.NewMessage(-1001453885388, a.User)
+	for a := range alertChan {
+		log.Infof("hello from telegram: %s", a.Status)
+		msg := tgbotapi.NewMessage(-1001453885388, a.Status)
 		_, err := bot.Send(msg)
 		if err != nil {
 			log.Errorf("failed to send message: %s", err)
@@ -88,7 +90,15 @@ func tgBotHandleAlerts(bot *tgbotapi.BotAPI, alertChan <-chan Alert) {
 	}
 }
 
+type WebHook struct {
+	Alerts []Alert `json:"alerts"`
+}
+
 type Alert struct {
-	User string `json:"user"`
-	Pass string `json:"pass"`
+	Status       string      `json:"status"`
+	Labels       interface{} `json:"labels"`
+	Annotations  interface{} `json:"annotations"`
+	StartsAt     string      `json:"startsAt"`
+	EndAt        string      `json:"endsAt"`
+	GeneratorURL string      `json:"generatorURL"`
 }
