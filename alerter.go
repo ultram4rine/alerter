@@ -68,8 +68,7 @@ func makeHandler(alertChan chan<- Alert) func(http.ResponseWriter, *http.Request
 			} else {
 				for _, a := range wh.Alerts {
 					alertChan <- a
-					log.Infof("hello from http: %s", a.Status)
-
+					log.Infof("hello from http: %v", a)
 				}
 			}
 
