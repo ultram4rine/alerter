@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
+	"text/template"
 
 	"github.com/BurntSushi/toml"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -35,9 +38,6 @@ func main() {
 		bot.Debug = true
 	}
 
-	msg := tgbotapi.NewMessage(conf.TgChatID, "hello there")
-	bot.Send(msg)
-
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
 	alertChan := make(chan Alert, 1000)
@@ -68,7 +68,6 @@ func makeHandler(alertChan chan<- Alert) func(http.ResponseWriter, *http.Request
 			} else {
 				for _, a := range wh.Alerts {
 					alertChan <- a
-					log.Infof("hello from http: %v", a)
 				}
 			}
 
@@ -78,11 +77,30 @@ func makeHandler(alertChan chan<- Alert) func(http.ResponseWriter, *http.Request
 	}
 }
 
+const tmpl = `
+{{ .Status }}
+{{ range .Labels }}
+Name: {{ .alertname }}
+{{ end }}
+{{ range .Annotations }}
+Description: {{ .description }}
+{{ end }}
+`
+
 func tgBotHandleAlerts(bot *tgbotapi.BotAPI, alertChan <-chan Alert) {
+	t := template.Must(template.New("template").Parse(tmpl))
 	for a := range alertChan {
-		log.Infof("hello from telegram: %s", a.Status)
-		msg := tgbotapi.NewMessage(-1001453885388, a.Status)
-		_, err := bot.Send(msg)
+		var bytesBuff bytes.Buffer
+		writer := io.Writer(&bytesBuff)
+		err := t.Execute(writer, a)
+		if err != nil {
+			log.Errorf("failed to parse alert: %s", err)
+		}
+
+		alert := bytesBuff.String()
+
+		msg := tgbotapi.NewMessage(-1001453885388, alert)
+		_, err = bot.Send(msg)
 		if err != nil {
 			log.Errorf("failed to send message: %s", err)
 		}
@@ -94,10 +112,10 @@ type WebHook struct {
 }
 
 type Alert struct {
-	Status       string      `json:"status"`
-	Labels       interface{} `json:"labels"`
-	Annotations  interface{} `json:"annotations"`
-	StartsAt     string      `json:"startsAt"`
-	EndAt        string      `json:"endsAt"`
-	GeneratorURL string      `json:"generatorURL"`
+	Status       string                 `json:"status"`
+	Labels       map[string]interface{} `json:"labels"`
+	Annotations  map[string]interface{} `json:"annotations"`
+	StartsAt     string                 `json:"startsAt"`
+	EndAt        string                 `json:"endsAt"`
+	GeneratorURL string                 `json:"generatorURL"`
 }
