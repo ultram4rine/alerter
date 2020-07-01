@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"reflect"
 	"text/template"
 
 	"github.com/BurntSushi/toml"
@@ -79,16 +80,31 @@ func makeHandler(alertChan chan<- Alert) func(http.ResponseWriter, *http.Request
 
 const tmpl = `
 {{ .Status }}
-{{ range .Labels }}
-Name: {{ .alertname }}
-{{ end }}
-{{ range .Annotations }}
-Description: {{ .description }}
-{{ end }}
+{{- if isMap .Labels -}}
+{{ range $k, $v := .Labels }}
+{{ $k }}: {{ $v }}
+{{- end -}}
+{{- end -}}
+
+{{- if isMap .Annotations -}}
+{{ range $k, $v := .Annotations }}
+{{ $k }}: {{ $v }}
+{{- end -}}
+{{- end -}}
 `
 
 func tgBotHandleAlerts(bot *tgbotapi.BotAPI, alertChan <-chan Alert) {
-	t := template.Must(template.New("template").Parse(tmpl))
+	funcMap := template.FuncMap{"isMap": func(i interface{}) bool {
+		v := reflect.ValueOf(i)
+		switch v.Kind() {
+		case reflect.Map:
+			return true
+		default:
+			return false
+		}
+	}}
+	t := template.Must(template.New("template").Funcs(funcMap).Parse(tmpl))
+
 	for a := range alertChan {
 		var bytesBuff bytes.Buffer
 		writer := io.Writer(&bytesBuff)
