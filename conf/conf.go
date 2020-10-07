@@ -21,7 +21,15 @@ func prepareConfig(confName string) error {
 	}
 
 	viper.SetEnvPrefix("alerter")
-	viper.AutomaticEnv()
+	if err := viper.BindEnv("listen_port"); err != nil {
+		return err
+	}
+	if err := viper.BindEnv("tg_bot_token"); err != nil {
+		return err
+	}
+	if err := viper.BindEnv("tg_chat_id"); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -34,6 +42,7 @@ func GetConfig(confName string) error {
 	if err := viper.Unmarshal(&Config); err != nil {
 		return err
 	}
+	log.Info(Config.TgBotToken)
 
 	return nil
 }
