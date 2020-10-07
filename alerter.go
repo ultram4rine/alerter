@@ -12,7 +12,6 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -22,9 +21,11 @@ var debug = kingpin.Flag("debug", "Run in debug mode").Short('d').Default("false
 func main() {
 	kingpin.Parse()
 
-	conf.GetConfig(*confName)
+	if err := conf.GetConfig(*confName); err != nil {
+		log.Warnf("Failed to get config: %s", err)
+	}
 
-	bot, err := tgbotapi.NewBotAPI(viper.GetString("tg_bot_token"))
+	bot, err := tgbotapi.NewBotAPI(conf.Config.TgBotToken)
 	if err != nil {
 		log.Fatalf("Failed to create bot: %s", err)
 	}
@@ -33,7 +34,7 @@ func main() {
 		bot.Debug = true
 	}
 
-	log.Printf("Authorized on account %s", bot.Self.UserName)
+	log.Infof("Authorized on account %s", bot.Self.UserName)
 
 	alertChan := make(chan Alert, 1000)
 
@@ -41,7 +42,7 @@ func main() {
 
 	processAlerts := makeHandler(alertChan)
 	http.HandleFunc("/", processAlerts)
-	if err := http.ListenAndServe(viper.GetString("listen_port"), nil); err != nil {
+	if err := http.ListenAndServe(conf.Config.ListenPort, nil); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -102,16 +103,15 @@ func tgBotHandleAlerts(bot *tgbotapi.BotAPI, alertChan <-chan Alert) {
 	for a := range alertChan {
 		var bytesBuff bytes.Buffer
 		writer := io.Writer(&bytesBuff)
-		err := t.Execute(writer, a)
-		if err != nil {
+		if err := t.Execute(writer, a); err != nil {
 			log.Errorf("failed to parse alert: %s", err)
 		}
 
 		alert := bytesBuff.String()
 
-		msg := tgbotapi.NewMessage(viper.GetInt64("tg_chat_id"), alert)
-		_, err = bot.Send(msg)
-		if err != nil {
+		msg := tgbotapi.NewMessage(conf.Config.ChatID, alert)
+		msg.ParseMode = "markdown"
+		if _, err := bot.Send(msg); err != nil {
 			log.Errorf("failed to send message: %s", err)
 		}
 	}

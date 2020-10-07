@@ -2,7 +2,13 @@ package conf
 
 import "github.com/spf13/viper"
 
-func GetConfig(confName string) error {
+var Config struct {
+	ListenPort string `mapstructure:"listen_port"`
+	TgBotToken string `mapstructure:"tg_bot_token"`
+	ChatID     int64  `mapstructure:"tg_chat_id"`
+}
+
+func prepareConfig(confName string) error {
 	viper.SetConfigName(confName)
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("/etc/alerter/")
@@ -12,13 +18,17 @@ func GetConfig(confName string) error {
 	}
 
 	viper.SetEnvPrefix("alerter")
-	if err := viper.BindEnv("listen_port"); err != nil {
+	viper.AutomaticEnv()
+
+	return nil
+}
+
+func GetConfig(confName string) error {
+	if err := prepareConfig(confName); err != nil {
 		return err
 	}
-	if err := viper.BindEnv("tg_bot_token"); err != nil {
-		return err
-	}
-	if err := viper.BindEnv("tg_chat_id"); err != nil {
+
+	if err := viper.Unmarshal(&Config); err != nil {
 		return err
 	}
 
