@@ -11,13 +11,12 @@ var Config struct {
 	ChatID     int64  `mapstructure:"tg_chat_id"`
 }
 
-func prepareConfig(confName string) error {
+func GetConfig(confName string) error {
 	viper.SetConfigName(confName)
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("/etc/alerter/")
 
 	if err := viper.ReadInConfig(); err != nil {
-		return err
+		log.Warn("Failed to read config file: %s", err)
 	}
 
 	viper.SetEnvPrefix("alerter")
@@ -31,18 +30,9 @@ func prepareConfig(confName string) error {
 		return err
 	}
 
-	return nil
-}
-
-func GetConfig(confName string) error {
-	if err := prepareConfig(confName); err != nil {
-		log.Warnf("Failed to prepare config: %s", err)
-	}
-
 	if err := viper.Unmarshal(&Config); err != nil {
 		return err
 	}
-	log.Info(Config.TgBotToken)
 
 	return nil
 }
