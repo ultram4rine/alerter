@@ -1,6 +1,9 @@
 package conf
 
-import "github.com/spf13/viper"
+import (
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+)
 
 var Config struct {
 	ListenPort string `mapstructure:"listen_port"`
@@ -25,7 +28,7 @@ func prepareConfig(confName string) error {
 
 func GetConfig(confName string) error {
 	if err := prepareConfig(confName); err != nil {
-		return err
+		log.Warnf("Failed to prepare config: %s", err)
 	}
 
 	if err := viper.Unmarshal(&Config); err != nil {
