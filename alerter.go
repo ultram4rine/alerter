@@ -25,6 +25,20 @@ func main() {
 		log.Fatalf("Failed to load configuration: %s", err)
 	}
 
+	tmpl, err := template.ParseFiles(conf.Config.TemplatePath)
+	if err != nil {
+		log.Fatalf("Failed to parse template: %s", err)
+	}
+	tmpl.Funcs(template.FuncMap{"isMap": func(i interface{}) bool {
+		v := reflect.ValueOf(i)
+		switch v.Kind() {
+		case reflect.Map:
+			return true
+		default:
+			return false
+		}
+	}})
+
 	bot, err := tgbotapi.NewBotAPI(conf.Config.TgBotToken)
 	if err != nil {
 		log.Fatalf("Failed to create bot: %s", err)
@@ -38,7 +52,7 @@ func main() {
 
 	alertChan := make(chan Alert, 1000)
 
-	go tgBotHandleAlerts(bot, alertChan)
+	go tgBotHandleAlerts(bot, tmpl, alertChan)
 
 	processAlerts := makeHandler(alertChan)
 	http.HandleFunc("/", processAlerts)
@@ -88,22 +102,11 @@ const tmpl = `
 {{- end -}}
 `
 
-func tgBotHandleAlerts(bot *tgbotapi.BotAPI, alertChan <-chan Alert) {
-	funcMap := template.FuncMap{"isMap": func(i interface{}) bool {
-		v := reflect.ValueOf(i)
-		switch v.Kind() {
-		case reflect.Map:
-			return true
-		default:
-			return false
-		}
-	}}
-	t := template.Must(template.New("template").Funcs(funcMap).Parse(tmpl))
-
+func tgBotHandleAlerts(bot *tgbotapi.BotAPI, tmpl *template.Template, alertChan <-chan Alert) {
 	for a := range alertChan {
 		var bytesBuff bytes.Buffer
 		writer := io.Writer(&bytesBuff)
-		err := t.Execute(writer, a)
+		err := tmpl.Execute(writer, a)
 		if err != nil {
 			log.Errorf("failed to parse alert: %s", err)
 		}

@@ -7,9 +7,10 @@ import (
 
 // Config is the configuration.
 var Config struct {
-	ListenPort string `mapstructure:"listen_port"`
-	TgBotToken string `mapstructure:"tg_bot_token"`
-	TgChatID   int64  `mapstructure:"tg_chat_id"`
+	ListenPort   string `mapstructure:"listen_port"`
+	TemplatePath string `mapstructure:"tmpl_path"`
+	TgBotToken   string `mapstructure:"tg_bot_token"`
+	TgChatID     int64  `mapstructure:"tg_chat_id"`
 }
 
 // Load parses the config from file or from ENV variables into a Config.
@@ -22,6 +23,9 @@ func Load(confName string) error {
 
 	viper.SetEnvPrefix("alerter")
 	if err := viper.BindEnv("listen_port"); err != nil {
+		return err
+	}
+	if err := viper.BindEnv("tmpl_path"); err != nil {
 		return err
 	}
 	if err := viper.BindEnv("tg_bot_token"); err != nil {
