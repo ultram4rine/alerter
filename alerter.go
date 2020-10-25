@@ -48,7 +48,7 @@ func main() {
 		bot.Debug = true
 	}
 
-	log.Printf("Authorized on account %s", bot.Self.UserName)
+	log.Infof("Authorized on account %s", bot.Self.UserName)
 
 	alertChan := make(chan Alert, 1000)
 
@@ -91,16 +91,16 @@ func tgBotHandleAlerts(bot *tgbotapi.BotAPI, tmpl *template.Template, alertChan 
 	for a := range alertChan {
 		var bytesBuff bytes.Buffer
 		writer := io.Writer(&bytesBuff)
-		err := tmpl.Execute(writer, a)
-		if err != nil {
+
+		if err := tmpl.Execute(writer, a); err != nil {
 			log.Errorf("failed to parse alert: %s", err)
 		}
 
 		alert := bytesBuff.String()
 
 		msg := tgbotapi.NewMessage(conf.Config.TgChatID, alert)
-		_, err = bot.Send(msg)
-		if err != nil {
+		msg.ParseMode = "markdown"
+		if _, err := bot.Send(msg); err != nil {
 			log.Errorf("failed to send message: %s", err)
 		}
 	}
