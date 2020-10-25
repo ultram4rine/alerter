@@ -1,12 +1,12 @@
 {{ .Status }}
 {{- if isMap .Labels -}}
 {{ range $k, $v := .Labels }}
-{{ $k }}: {{ $v }}
+**{{ $k }}**: {{ $v }}
 {{- end -}}
 {{- end -}}
 
 {{- if isMap .Annotations -}}
 {{ range $k, $v := .Annotations }}
-{{ $k }}: {{ $v }}
+**{{ $k }}**: {{ $v }}
 {{- end -}}
 {{- end -}}
