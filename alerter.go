@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"path"
 	"reflect"
 	"text/template"
 
@@ -35,7 +36,7 @@ func main() {
 		}
 	}}
 
-	tmpl, err := template.New("default").Funcs(funcsMap).ParseFiles(conf.Config.TemplatePath)
+	tmpl, err := template.New(path.Base(conf.Config.TemplatePath)).Funcs(funcsMap).ParseFiles(conf.Config.TemplatePath)
 	if err != nil {
 		log.Fatalf("Failed to parse template: %s", err)
 	}
