@@ -101,7 +101,7 @@ func tgBotHandleAlerts(bot *tgbotapi.BotAPI, tmpl *template.Template, alertChan 
 		alert := bytesBuff.String()
 
 		msg := tgbotapi.NewMessage(conf.Config.TgChatID, alert)
-		msg.ParseMode = "markdown"
+		msg.ParseMode = tgbotapi.ModeMarkdown
 		if _, err := bot.Send(msg); err != nil {
 			log.Errorf("failed to send message: %s", err)
 		}
