@@ -25,11 +25,7 @@ func main() {
 		log.Fatalf("Failed to load configuration: %s", err)
 	}
 
-	tmpl, err := template.ParseFiles(conf.Config.TemplatePath)
-	if err != nil {
-		log.Fatalf("Failed to parse template: %s", err)
-	}
-	tmpl.Funcs(template.FuncMap{"isMap": func(i interface{}) bool {
+	var funcsMap = template.FuncMap{"isMap": func(i interface{}) bool {
 		v := reflect.ValueOf(i)
 		switch v.Kind() {
 		case reflect.Map:
@@ -37,7 +33,12 @@ func main() {
 		default:
 			return false
 		}
-	}})
+	}}
+
+	tmpl, err := template.New("default").Funcs(funcsMap).ParseFiles(conf.Config.TemplatePath)
+	if err != nil {
+		log.Fatalf("Failed to parse template: %s", err)
+	}
 
 	bot, err := tgbotapi.NewBotAPI(conf.Config.TgBotToken)
 	if err != nil {
