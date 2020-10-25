@@ -1,14 +1,23 @@
 package conf
 
-import "github.com/spf13/viper"
+import (
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+)
 
-func GetConfig(confName string) error {
+// Config is the configuration.
+var Config struct {
+	ListenPort string `mapstructure:"listen_port"`
+	TgBotToken string `mapstructure:"tg_bot_token"`
+	TgChatID   int64  `mapstructure:"tg_chat_id"`
+}
+
+// Load parses the config from file or from ENV variables into a Config.
+func Load(confName string) error {
 	viper.SetConfigName(confName)
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("/etc/alerter/")
-
 	if err := viper.ReadInConfig(); err != nil {
-		return err
+		log.Warnf("Error decoding config file from %s: %s", confName, err)
 	}
 
 	viper.SetEnvPrefix("alerter")
@@ -19,6 +28,10 @@ func GetConfig(confName string) error {
 		return err
 	}
 	if err := viper.BindEnv("tg_chat_id"); err != nil {
+		return err
+	}
+
+	if err := viper.Unmarshal(&Config); err != nil {
 		return err
 	}
 
