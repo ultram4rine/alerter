@@ -87,21 +87,6 @@ func makeHandler(alertChan chan<- Alert) func(http.ResponseWriter, *http.Request
 	}
 }
 
-const tmpl = `
-{{ .Status }}
-{{- if isMap .Labels -}}
-{{ range $k, $v := .Labels }}
-{{ $k }}: {{ $v }}
-{{- end -}}
-{{- end -}}
-
-{{- if isMap .Annotations -}}
-{{ range $k, $v := .Annotations }}
-{{ $k }}: {{ $v }}
-{{- end -}}
-{{- end -}}
-`
-
 func tgBotHandleAlerts(bot *tgbotapi.BotAPI, tmpl *template.Template, alertChan <-chan Alert) {
 	for a := range alertChan {
 		var bytesBuff bytes.Buffer
