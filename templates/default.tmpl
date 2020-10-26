@@ -1,7 +1,7 @@
 {{ if eq .Status "firing" }}
 🔥 Firing 🔥
 {{ else if eq .Status "resolved" }}
-✔️ Resolved ✔️
+✅ Resolved ✅
 {{ end }}
 
 {{- range .Alerts -}}
