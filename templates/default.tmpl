@@ -6,21 +6,24 @@
 
 {{- range .Alerts -}}
 
-*{{ .Labels.alertname }}*
+*{{- .Labels.alertname -}}*
 
-{{ if .Labels.building }}
+{{- if .Labels.building -}}
 *Building*: {{ .Labels.building }}
-{{ end }}
-{{ if .Labels.instance }}
+{{- end -}}
+{{- if .Labels.instance -}}
 *Instance*: {{ .Labels.instance }}
-{{ end }}
+{{- end -}}
+{{- if .Labels.host -}}
+*Host*: {{ .Labels.host }}
+{{- end -}}
 
-{{ if .Annotations.summary }}
+{{- if .Annotations.summary -}}
 *Summary*: {{ .Annotations.summary }}
-{{ end }}
-{{ if .Annotations.description }}
+{{- end -}}
+{{- if .Annotations.description -}}
 *Description*: {{ .Annotations.description }}
-{{ end }}
+{{- end -}}
 
 *Duration*: {{ duration .StartsAt .EndsAt }}
 {{ if ne .Status "firing"}}
