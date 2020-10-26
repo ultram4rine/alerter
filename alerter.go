@@ -6,12 +6,13 @@ import (
 	"io"
 	"net/http"
 	"path"
-	"reflect"
 	"text/template"
+	"time"
 
 	"git.sgu.ru/ultramarine/alerter/conf"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/hako/durafmt"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -26,14 +27,8 @@ func main() {
 		log.Fatalf("Failed to load configuration: %s", err)
 	}
 
-	var funcsMap = template.FuncMap{"isMap": func(i interface{}) bool {
-		v := reflect.ValueOf(i)
-		switch v.Kind() {
-		case reflect.Map:
-			return true
-		default:
-			return false
-		}
+	var funcsMap = template.FuncMap{"duration": func(start time.Time, end time.Time) string {
+		return durafmt.Parse(end.Sub(start)).String()
 	}}
 
 	tmpl, err := template.New(path.Base(conf.Config.TemplatePath)).Funcs(funcsMap).ParseFiles(conf.Config.TemplatePath)
