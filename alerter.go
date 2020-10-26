@@ -110,5 +110,5 @@ type Alert struct {
 	Labels      map[string]interface{} `json:"labels"`
 	Annotations map[string]interface{} `json:"annotations"`
 	StartsAt    string                 `json:"startsAt"`
-	EndAt       string                 `json:"endsAt"`
+	EndsAt      string                 `json:"endsAt"`
 }
