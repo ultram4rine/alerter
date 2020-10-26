@@ -4,9 +4,9 @@
 ✔️ Resolved ✔️
 {{ end }}
 
-*{{ .Labels.alertname }}*
-
 {{- range .Alerts -}}
+
+*{{ .Labels.alertname }}*
 
 {{ if .Labels.building }}
 *Building*: {{ .Labels.building }}

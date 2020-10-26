@@ -75,11 +75,6 @@ func makeHandler(whChan chan<- WebHook) func(http.ResponseWriter, *http.Request)
 			if err != nil {
 				log.Errorf("failed to decode request body: %s", err)
 			} else {
-				log.Info("labels")
-				log.Info(wh.Alerts[0].Labels)
-				log.Info("annotations")
-				log.Info(wh.Alerts[0].Annotations)
-
 				whChan <- wh
 			}
 
