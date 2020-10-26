@@ -29,6 +29,8 @@ func main() {
 
 	var funcsMap = template.FuncMap{"duration": func(start time.Time, end time.Time) string {
 		return durafmt.Parse(end.Sub(start)).String()
+	}, "since": func(t time.Time) string {
+		return durafmt.Parse(time.Since(t)).String()
 	}}
 
 	tmpl, err := template.New(path.Base(conf.Config.TemplatePath)).Funcs(funcsMap).ParseFiles(conf.Config.TemplatePath)
