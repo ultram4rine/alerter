@@ -3,31 +3,25 @@
 {{ else if eq .Status "resolved" }}
 ✅ Resolved ✅
 {{ end }}
-
 {{- range .Alerts -}}
-
-*{{- .Labels.alertname -}}*
-
-{{- if .Labels.building -}}
+*{{ .Labels.alertname }}*
+{{ if .Labels.building }}
 *Building*: {{ .Labels.building }}
-{{- end -}}
-{{- if .Labels.instance -}}
+{{ end }}
+{{ if .Labels.instance }}
 *Instance*: {{ .Labels.instance }}
-{{- end -}}
-{{- if .Labels.host -}}
+{{ end }}
+{{ if .Labels.host }}
 *Host*: {{ .Labels.host }}
-{{- end -}}
-
-{{- if .Annotations.summary -}}
+{{ end }}
+{{ if .Annotations.summary }}
 *Summary*: {{ .Annotations.summary }}
-{{- end -}}
-{{- if .Annotations.description -}}
+{{ end }}
+{{ if .Annotations.description }}
 *Description*: {{ .Annotations.description }}
-{{- end -}}
-
+{{ end }}
 *Duration*: {{ duration .StartsAt .EndsAt }}
 {{ if ne .Status "firing"}}
 *Ended*: {{ .EndsAt | since }}
 {{ end }}
-
-{{- end -}}
+{{ end }}
