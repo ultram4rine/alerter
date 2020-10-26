@@ -109,6 +109,6 @@ type WebHook struct {
 type Alert struct {
 	Labels      map[string]interface{} `json:"labels"`
 	Annotations map[string]interface{} `json:"annotations"`
-	StartsAt    string                 `json:"startsAt"`
-	EndsAt      string                 `json:"endsAt"`
+	StartsAt    time.Time              `json:"startsAt"`
+	EndsAt      time.Time              `json:"endsAt"`
 }
