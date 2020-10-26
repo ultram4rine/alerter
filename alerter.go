@@ -52,18 +52,18 @@ func main() {
 
 	log.Infof("Authorized on account %s", bot.Self.UserName)
 
-	alertChan := make(chan Alert, 1000)
+	whChan := make(chan WebHook, 1000)
 
-	go tgBotHandleAlerts(bot, tmpl, alertChan)
+	go tgBotHandleWebHooks(bot, tmpl, whChan)
 
-	processAlerts := makeHandler(alertChan)
+	processAlerts := makeHandler(whChan)
 	http.HandleFunc("/", processAlerts)
 	if err := http.ListenAndServe(conf.Config.ListenPort, nil); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func makeHandler(alertChan chan<- Alert) func(http.ResponseWriter, *http.Request) {
+func makeHandler(whChan chan<- WebHook) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			http.Error(w, "404 Not Found", http.StatusNotFound)
@@ -78,9 +78,7 @@ func makeHandler(alertChan chan<- Alert) func(http.ResponseWriter, *http.Request
 			if err != nil {
 				log.Errorf("failed to decode request body: %s", err)
 			} else {
-				for _, a := range wh.Alerts {
-					alertChan <- a
-				}
+				whChan <- wh
 			}
 
 		default:
@@ -89,18 +87,16 @@ func makeHandler(alertChan chan<- Alert) func(http.ResponseWriter, *http.Request
 	}
 }
 
-func tgBotHandleAlerts(bot *tgbotapi.BotAPI, tmpl *template.Template, alertChan <-chan Alert) {
-	for a := range alertChan {
+func tgBotHandleWebHooks(bot *tgbotapi.BotAPI, tmpl *template.Template, whChan <-chan WebHook) {
+	for wh := range whChan {
 		var bytesBuff bytes.Buffer
 		writer := io.Writer(&bytesBuff)
 
-		if err := tmpl.Execute(writer, a); err != nil {
+		if err := tmpl.Execute(writer, wh); err != nil {
 			log.Errorf("failed to parse alert: %s", err)
 		}
 
-		alert := bytesBuff.String()
-
-		msg := tgbotapi.NewMessage(conf.Config.TgChatID, alert)
+		msg := tgbotapi.NewMessage(conf.Config.TgChatID, bytesBuff.String())
 		msg.ParseMode = tgbotapi.ModeMarkdown
 		if _, err := bot.Send(msg); err != nil {
 			log.Errorf("failed to send message: %s", err)
@@ -109,14 +105,13 @@ func tgBotHandleAlerts(bot *tgbotapi.BotAPI, tmpl *template.Template, alertChan 
 }
 
 type WebHook struct {
+	Status string  `json:"status"`
 	Alerts []Alert `json:"alerts"`
 }
 
 type Alert struct {
-	Status       string                 `json:"status"`
-	Labels       map[string]interface{} `json:"labels"`
-	Annotations  map[string]interface{} `json:"annotations"`
-	StartsAt     string                 `json:"startsAt"`
-	EndAt        string                 `json:"endsAt"`
-	GeneratorURL string                 `json:"generatorURL"`
+	Labels      map[string]interface{} `json:"labels"`
+	Annotations map[string]interface{} `json:"annotations"`
+	StartsAt    string                 `json:"startsAt"`
+	EndAt       string                 `json:"endsAt"`
 }

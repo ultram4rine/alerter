@@ -1,12 +1,30 @@
-{{ .Status }}
-{{- if isMap .Labels -}}
-{{ range $k, $v := .Labels }}
-*{{ $k }}*: {{ $v }}
-{{- end -}}
-{{- end -}}
+{{ if eq .Status "firing" }}
+🔥 Firing 🔥
+{{ else if eq .Status "resolved" }}
+✔️ Resolved ✔️
+{{ end }}
 
-{{- if isMap .Annotations -}}
-{{ range $k, $v := .Annotations }}
-*{{ $k }}*: {{ $v }}
-{{- end -}}
+*{{ .Labels.alertname }}*
+
+{{- range .Alerts -}}
+
+{{ if .Labels.building }}
+*Building*: {{ .Labels.building }}
+{{ end }}
+{{ if .Labels.instance }}
+*Instance*: {{ .Labels.instance }}
+{{ end }}
+
+{{ if .Annotations.summary }}
+*Summary*: {{ .Annotations.summary }}
+{{ end }}
+{{ if .Annotations.description }}
+*Description*: {{ .Annotations.description }}
+{{ end }}
+
+*Duration*: {{ duration .StartsAt .EndsAt }}
+{{ if ne .Status "firing"}}
+*Ended*: {{ .EndsAt | since }}
+{{ end }}
+
 {{- end -}}
