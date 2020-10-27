@@ -1,7 +1,7 @@
 {{ if eq .Status "firing" }}
-🔥 Firing 🔥
+🔥 *Firing* 🔥
 {{ else if eq .Status "resolved" }}
-✅ Resolved ✅
+✅ *Resolved* ✅
 {{ end }}
 {{- range .Alerts }}
 *{{ .Labels.alertname }}*
@@ -24,4 +24,4 @@
 {{- if ne $.Status "firing"}}
 *Ended*: {{ .EndsAt | since }}
 {{- end }}
-{{- end }}
+{{ end }}

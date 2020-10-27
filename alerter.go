@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"path"
+	"strings"
 	"text/template"
 	"time"
 
@@ -93,7 +94,7 @@ func tgBotHandleWebHooks(bot *tgbotapi.BotAPI, tmpl *template.Template, whChan <
 			log.Errorf("failed to parse alert: %s", err)
 		}
 
-		msg := tgbotapi.NewMessage(conf.Config.TgChatID, bytesBuff.String())
+		msg := tgbotapi.NewMessage(conf.Config.TgChatID, strings.TrimSuffix(bytesBuff.String(), "\n"))
 		msg.ParseMode = tgbotapi.ModeMarkdown
 		if _, err := bot.Send(msg); err != nil {
 			log.Errorf("failed to send message: %s", err)
@@ -101,11 +102,13 @@ func tgBotHandleWebHooks(bot *tgbotapi.BotAPI, tmpl *template.Template, whChan <
 	}
 }
 
+// WebHook is a POST request from alertmanager.
 type WebHook struct {
 	Status string  `json:"status"`
 	Alerts []Alert `json:"alerts"`
 }
 
+// Alert is a representation of an alert in the Prometheus eco-system.
 type Alert struct {
 	Labels      map[string]interface{} `json:"labels"`
 	Annotations map[string]interface{} `json:"annotations"`
