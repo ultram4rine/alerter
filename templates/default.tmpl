@@ -1,27 +1,27 @@
 {{ if eq .Status "firing" }}
-🔥 *Firing* 🔥
+🔥 <b>Firing</b> 🔥
 {{ else if eq .Status "resolved" }}
-✅ *Resolved* ✅
+✅ <b>Resolved</b> ✅
 {{ end }}
 {{- range .Alerts }}
-*{{ .Labels.alertname }}*
+<b>{{ .Labels.alertname }}</b>
 {{- if .Labels.building }}
-*Building*: {{ .Labels.building }}
+<b>Building</b>: {{ .Labels.building }}
 {{- end }}
 {{- if .Labels.instance }}
-*Instance*: {{ .Labels.instance }}
+<b>Instance</b>: {{ .Labels.instance }}
 {{- end }}
 {{- if .Labels.host }}
-*Host*: {{ .Labels.host }}
+<b>Host</b>: {{ .Labels.host }}
 {{- end }}
 {{- if .Annotations.summary }}
-*Summary*: {{ .Annotations.summary }}
+<b>Summary</b>: {{ .Annotations.summary }}
 {{- end }}
 {{- if .Annotations.description }}
-*Description*: {{ .Annotations.description }}
+<b>Description</b>: {{ .Annotations.description }}
 {{- end }}
-*Duration*: {{ duration .StartsAt .EndsAt }}
+<b>Duration</b>: {{ duration .StartsAt .EndsAt }}
 {{- if ne $.Status "firing"}}
-*Ended*: {{ .EndsAt | since }}
+<b>Ended</b>: {{ .EndsAt | since }}
 {{- end }}
 {{ end }}

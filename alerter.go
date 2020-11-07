@@ -95,7 +95,7 @@ func tgBotHandleWebHooks(bot *tgbotapi.BotAPI, tmpl *template.Template, whChan <
 		}
 
 		msg := tgbotapi.NewMessage(conf.Config.TgChatID, strings.TrimSuffix(bytesBuff.String(), "\n"))
-		msg.ParseMode = tgbotapi.ModeMarkdown
+		msg.ParseMode = tgbotapi.ModeHTML
 		if _, err := bot.Send(msg); err != nil {
 			log.Errorf("failed to send message: %s", err)
 		}
