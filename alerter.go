@@ -30,6 +30,8 @@ func main() {
 
 	var funcsMap = template.FuncMap{"duration": func(start time.Time, end time.Time) string {
 		return durafmt.Parse(end.Sub(start)).String()
+	}, "durationNow": func(start time.Time) string {
+		return durafmt.Parse(time.Now().Sub(start)).String()
 	}, "since": func(t time.Time) string {
 		return durafmt.Parse(time.Since(t)).String()
 	}}

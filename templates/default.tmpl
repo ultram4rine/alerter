@@ -20,8 +20,10 @@
 {{- if .Annotations.description }}
 <b>Description</b>: {{ .Annotations.description }}
 {{- end }}
+{{- if eq $.Status "firing" }}
+<b>Duration</b>: {{ .StartsAt | durationNow }}
+{{- else if eq $.Status "resolved"}}
 <b>Duration</b>: {{ duration .StartsAt .EndsAt }}
-{{- if ne $.Status "firing"}}
-<b>Ended</b>: {{ .EndsAt | since }}
+<b>Ended</b>: {{ .EndsAt | since }} ago
 {{- end }}
 {{ end }}
