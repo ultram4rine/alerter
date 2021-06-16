@@ -1,6 +1,7 @@
-{{#if (eq status "firing")}}
+{{#if (eq status compare="firing")}}
 🔥 <b>Firing</b> 🔥
-{{else}}
+{{/if}}
+{{#if (eq status compare="resolved")}}
 ✅ <b>Resolved</b> ✅
 {{/if}}
 
@@ -21,6 +22,13 @@
 {{/if}}
 {{#if annotations.description}}
 <b>Description</b>: {{annotations.description}}
+{{/if}}
+{{#if (eq ../status compare="firing")}}
+<b>Duration</b>: {{ since startsAt }}
+{{/if}}
+{{#if (eq ../status compare="resolved")}}
+<b>Duration</b>: {{ duration startsAt y=endsAt }}
+<b>Ended</b>: {{ since endsAt }} ago
 {{/if}}
 
 {{/each}}
