@@ -97,6 +97,8 @@ func tgBotHandleWebHooks(bot *tgbotapi.BotAPI, tmpl *template.Template, whChan <
 		}
 
 		msgTxt := strings.TrimSuffix(bytesBuff.String(), "\n")
+		msgTxt = strings.TrimPrefix(msgTxt, "\n")
+
 		msg := tgbotapi.NewMessage(conf.Config.TgChatID, msgTxt)
 		msg.ParseMode = tgbotapi.ModeHTML
 		if _, err := bot.Send(msg); err != nil {
