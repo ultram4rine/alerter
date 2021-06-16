@@ -1,0 +1,7 @@
+
+{{#if eq $.Status "firing" }}
+<b>Duration</b>: {{ .StartsAt | durationNow }}
+{{- else if eq $.Status "resolved"}}
+<b>Duration</b>: {{ duration .StartsAt .EndsAt }}
+<b>Ended</b>: {{ .EndsAt | since }} ago
+{{/if}}
