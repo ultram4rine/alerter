@@ -7,7 +7,7 @@ use std::fs;
 use std::sync::Arc;
 
 use anyhow::Result;
-use chrono::prelude::*;
+use chrono::{DateTime, Duration, Local};
 use dotenv::dotenv;
 use handlebars::{handlebars_helper, Handlebars};
 use telegram_bot::Api;
@@ -66,7 +66,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-fn format_duration(duration: chrono::Duration) -> String {
+fn format_duration(duration: Duration) -> String {
     let weeks = duration.num_weeks();
     let days = duration.num_days() - weeks * 7;
     let hours = duration.num_hours() - (weeks * 7 + days) * 24;
