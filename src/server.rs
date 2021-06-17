@@ -30,14 +30,17 @@ pub async fn send_message(
     chat_id: i64,
 ) -> Result<impl warp::Reply, Infallible> {
     let b = bot.lock().await;
+
+    let msg_text = match hb.render("default", &webhook) {
+        Ok(v) => v,
+        Err(e) => {
+            println!("{:?}", e);
+            return Ok(StatusCode::INTERNAL_SERVER_ERROR);
+        }
+    };
+
     match b
-        .send(
-            SendMessage::new(
-                ChatId::from(chat_id),
-                hb.render("default", &webhook).unwrap(),
-            )
-            .parse_mode(ParseMode::Html),
-        )
+        .send(SendMessage::new(ChatId::from(chat_id), msg_text).parse_mode(ParseMode::Html))
         .await
     {
         Ok(_) => return Ok(StatusCode::OK),
