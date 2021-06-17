@@ -1,3 +1,4 @@
+use log::error;
 use std::{convert::Infallible, sync::Arc};
 
 use serde::{Deserialize, Serialize};
@@ -33,8 +34,8 @@ pub async fn send_message(
 
     let msg_text = match hb.render("default", &webhook) {
         Ok(v) => v,
-        Err(e) => {
-            println!("{:?}", e);
+        Err(err) => {
+            error!("failed to render message: {}", err);
             return Ok(StatusCode::INTERNAL_SERVER_ERROR);
         }
     };
@@ -44,8 +45,8 @@ pub async fn send_message(
         .await
     {
         Ok(_) => return Ok(StatusCode::OK),
-        Err(e) => {
-            println!("{:?}", e);
+        Err(err) => {
+            error!("failed to send message: {}", err);
             return Ok(StatusCode::INTERNAL_SERVER_ERROR);
         }
     };

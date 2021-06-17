@@ -9,6 +9,7 @@ dependencies = [
  "dotenv",
  "futures",
  "handlebars",
+ "log 0.4.14",
  "serde",
  "serde_json",
  "telegram-bot",
