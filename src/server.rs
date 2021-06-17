@@ -27,12 +27,13 @@ pub async fn send_message(
     webhook: WebHook,
     bot: Arc<Mutex<Api>>,
     hb: Arc<Handlebars<'_>>,
+    chat_id: i64,
 ) -> Result<impl warp::Reply, Infallible> {
     let b = bot.lock().await;
     match b
         .send(
             SendMessage::new(
-                ChatId::from(101814676),
+                ChatId::from(chat_id),
                 hb.render("default", &webhook).unwrap(),
             )
             .parse_mode(ParseMode::Html),

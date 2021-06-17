@@ -19,10 +19,20 @@ use crate::server::send_message;
 async fn main() -> Result<(), Error> {
     dotenv().ok();
 
-    let token = env::var("TELEGRAM_BOT_TOKEN").expect("TELEGRAM_BOT_TOKEN not set");
+    let listen_port = env::var("LISTEN_PORT")
+        .expect("LISTEN_PORT not set")
+        .parse::<u16>()
+        .unwrap();
+    let tmpl_path = env::var("TMPL_PATH").expect("TMPL_PATH not set");
+    let token = env::var("TG_BOT_TOKEN").expect("TG_BOT_TOKEN not set");
+    let chat_id = env::var("TG_CHAT_ID")
+        .expect("TG_CHAT_ID not set")
+        .parse::<i64>()
+        .unwrap();
+
     let bot = Arc::new(Mutex::new(Api::new(token)));
 
-    let tpl_str = fs::read_to_string("templates/default.hbs").unwrap();
+    let tpl_str = fs::read_to_string(tmpl_path).unwrap();
     let mut hb = Handlebars::new();
     hb.register_template_string("default", tpl_str).unwrap();
     handlebars_helper!(eq: |x: str, { compare: str = "firing" }| x == compare);
@@ -49,9 +59,10 @@ async fn main() -> Result<(), Error> {
             .and(warp::body::json())
             .and(warp::any().map(move || bot.clone()))
             .and(warp::any().map(move || hb.clone()))
+            .and(warp::any().map(move || chat_id.clone()))
             .and_then(send_message),
     )
-    .run(([0, 0, 0, 0], 3030))
+    .run(([0, 0, 0, 0], listen_port))
     .await;
 
     Ok(())
