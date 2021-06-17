@@ -6,7 +6,7 @@ use std::env;
 use std::fs;
 use std::sync::Arc;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Duration, Local};
 use dotenv::dotenv;
 use handlebars::{handlebars_helper, Handlebars};
@@ -20,14 +20,32 @@ use crate::server::send_message;
 async fn main() -> Result<()> {
     dotenv().ok();
 
-    let listen_port = env::var("ALERTER_LISTEN_PORT")
+    let listen_port = match env::var("ALERTER_LISTEN_PORT")
         .expect("LISTEN_PORT not set")
-        .parse::<u16>()?;
+        .parse::<u16>()
+    {
+        Ok(v) => v,
+        Err(err) => {
+            return Err(anyhow!(format!(
+                "failed to parse LISTEN_PORT to integer: {}",
+                err
+            )));
+        }
+    };
     let tmpl_path = env::var("ALERTER_TMPL_PATH").expect("TMPL_PATH not set");
     let token = env::var("ALERTER_TG_BOT_TOKEN").expect("TG_BOT_TOKEN not set");
-    let chat_id = env::var("ALERTER_TG_CHAT_ID")
+    let chat_id = match env::var("ALERTER_TG_CHAT_ID")
         .expect("TG_CHAT_ID not set")
-        .parse::<i64>()?;
+        .parse::<i64>()
+    {
+        Ok(v) => v,
+        Err(err) => {
+            return Err(anyhow!(format!(
+                "failed to parse TG_CHAT_ID to integer: {}",
+                err
+            )));
+        }
+    };
 
     let bot = Arc::new(Mutex::new(Api::new(token)));
 
