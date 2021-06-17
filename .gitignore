@@ -1,9 +1,5 @@
-.idea/
-alerter.conf.toml
-
 .env
 
 # Added by cargo
 
 /target
-
