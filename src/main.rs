@@ -6,44 +6,43 @@ use std::env;
 use std::fs;
 use std::sync::Arc;
 
+use anyhow::Result;
 use chrono::prelude::*;
 use dotenv::dotenv;
 use handlebars::{handlebars_helper, Handlebars};
-use telegram_bot::{Api, Error};
+use telegram_bot::Api;
 use tokio::sync::Mutex;
 use warp::Filter;
 
 use crate::server::send_message;
 
 #[tokio::main]
-async fn main() -> Result<(), Error> {
+async fn main() -> Result<()> {
     dotenv().ok();
 
     let listen_port = env::var("LISTEN_PORT")
         .expect("LISTEN_PORT not set")
-        .parse::<u16>()
-        .unwrap();
+        .parse::<u16>()?;
     let tmpl_path = env::var("TMPL_PATH").expect("TMPL_PATH not set");
     let token = env::var("TG_BOT_TOKEN").expect("TG_BOT_TOKEN not set");
     let chat_id = env::var("TG_CHAT_ID")
         .expect("TG_CHAT_ID not set")
-        .parse::<i64>()
-        .unwrap();
+        .parse::<i64>()?;
 
     let bot = Arc::new(Mutex::new(Api::new(token)));
 
-    let tpl_str = fs::read_to_string(tmpl_path).unwrap();
+    let tpl_str = fs::read_to_string(tmpl_path)?;
     let mut hb = Handlebars::new();
-    hb.register_template_string("default", tpl_str).unwrap();
+    hb.register_template_string("default", tpl_str)?;
     handlebars_helper!(eq: |x: str, { compare: str = "firing" }| x == compare);
-    handlebars_helper!(since:|x:str| {
-        let time=DateTime::parse_from_rfc3339(x).unwrap();
-        let now=Local::now();
+    handlebars_helper!(since: |x: str| {
+        let time = DateTime::parse_from_rfc3339(x).unwrap();
+        let now = Local::now();
         format_duration(now.signed_duration_since(time))
     });
-    handlebars_helper!(duration:|x:str, {y: str = ""}| {
-        let from=DateTime::parse_from_rfc3339(x).unwrap();
-        let to=DateTime::parse_from_rfc3339(y).unwrap();
+    handlebars_helper!(duration: |x: str, {y: str = ""}| {
+        let from = DateTime::parse_from_rfc3339(x).unwrap();
+        let to = DateTime::parse_from_rfc3339(y).unwrap();
         format_duration(to.signed_duration_since(from))
     });
     hb.register_helper("eq", Box::new(eq));
