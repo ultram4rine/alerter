@@ -1,0 +1,34 @@
+{{#if (eq status compare="firing")}}
+🔥 <b>Firing</b> 🔥
+{{/if}}
+{{#if (eq status compare="resolved")}}
+✅ <b>Resolved</b> ✅
+{{/if}}
+
+{{#each alerts ~}}
+
+<b>{{labels.alertname}}</b>
+{{#if labels.building}}
+<b>Building</b>: {{labels.building}}
+{{/if}}
+{{#if labels.instance}}
+<b>Instance</b>: {{labels.instance}}
+{{/if}}
+{{#if labels.host}}
+<b>Host</b>: {{labels.host}}
+{{/if}}
+{{#if annotations.summary}}
+<b>Summary</b>: {{annotations.summary}}
+{{/if}}
+{{#if annotations.description}}
+<b>Description</b>: {{annotations.description}}
+{{/if}}
+{{#if (eq ../status compare="firing")}}
+<b>Duration</b>: {{ since startsAt }}
+{{/if}}
+{{#if (eq ../status compare="resolved")}}
+<b>Duration</b>: {{ duration startsAt y=endsAt }}
+<b>Ended</b>: {{ since endsAt }} ago
+{{/if}}
+
+{{/each}}
