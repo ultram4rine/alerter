@@ -43,7 +43,6 @@ async fn main() -> Result<(), Error> {
     });
     handlebars_helper!(duration:|x:str, {y: str = ""}| {
         let from=DateTime::parse_from_rfc3339(x).unwrap();
-        println!("{}", y);
         let to=DateTime::parse_from_rfc3339(y).unwrap();
         format_duration(to.signed_duration_since(from))
     });
