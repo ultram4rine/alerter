@@ -2,9 +2,7 @@ mod server;
 
 extern crate dotenv;
 
-use std::env;
-use std::fs;
-use std::sync::Arc;
+use std::{env, fs, sync::Arc};
 
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Duration, Local};
