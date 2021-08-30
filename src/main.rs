@@ -8,8 +8,7 @@ use anyhow::{anyhow, Result};
 use chrono::{DateTime, Duration, Local};
 use dotenv::dotenv;
 use handlebars::{handlebars_helper, Handlebars};
-use telegram_bot::Api;
-use tokio::sync::Mutex;
+use teloxide::Bot;
 use warp::Filter;
 
 use crate::server::send_message;
@@ -45,7 +44,7 @@ async fn main() -> Result<()> {
         }
     };
 
-    let bot = Arc::new(Mutex::new(Api::new(token)));
+    let bot = Bot::new(token);
 
     let tpl_str = fs::read_to_string(tmpl_path)?;
     let mut hb = Handlebars::new();

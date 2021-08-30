@@ -5,8 +5,11 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use handlebars::Handlebars;
-use telegram_bot::{Api, ChatId, ParseMode, SendMessage};
-use tokio::sync::Mutex;
+use teloxide::{
+    requests::{Request, Requester},
+    types::ParseMode::Html,
+    Bot,
+};
 use warp::http::StatusCode;
 
 #[derive(Serialize, Deserialize)]
@@ -26,12 +29,10 @@ pub struct Alert {
 
 pub async fn send_message(
     webhook: WebHook,
-    bot: Arc<Mutex<Api>>,
+    bot: Bot,
     hb: Arc<Handlebars<'_>>,
     chat_id: i64,
 ) -> Result<impl warp::Reply, Infallible> {
-    let b = bot.lock().await;
-
     let msg_text = match hb.render("default", &webhook) {
         Ok(v) => v,
         Err(err) => {
@@ -40,10 +41,10 @@ pub async fn send_message(
         }
     };
 
-    match b
-        .send(SendMessage::new(ChatId::from(chat_id), msg_text).parse_mode(ParseMode::Html))
-        .await
-    {
+    let mut msg = bot.send_message(chat_id, msg_text);
+    msg.parse_mode = Some(Html);
+
+    match msg.send().await {
         Ok(_) => return Ok(StatusCode::OK),
         Err(err) => {
             error!("failed to send message: {}", err);
