@@ -10,19 +10,19 @@ pub fn format_duration(duration: Duration) -> String {
     let milliseconds = duration.num_milliseconds()
         - ((((((weeks * 7 + days) * 24) + hours) * 60) + minutes) * 60 + seconds) * 1000;
 
-    let f_weeks = format_unit("week".to_string(), "weeks".to_string(), weeks);
-    let f_days = format_unit("day".to_string(), "days".to_string(), days);
-    let f_hours = format_unit("hour".to_string(), "hours".to_string(), hours);
-    let f_minutes = format_unit("minute".to_string(), "minutes".to_string(), minutes);
-    let f_seconds = format_unit("second".to_string(), "seconds".to_string(), seconds);
+    let f_weeks = format_unit("week".to_owned(), "weeks".to_owned(), weeks);
+    let f_days = format_unit("day".to_owned(), "days".to_owned(), days);
+    let f_hours = format_unit("hour".to_owned(), "hours".to_owned(), hours);
+    let f_minutes = format_unit("minute".to_owned(), "minutes".to_owned(), minutes);
+    let f_seconds = format_unit("second".to_owned(), "seconds".to_owned(), seconds);
     let f_milliseconds = if seconds == 0 {
         format_unit(
-            "millisecond".to_string(),
-            "milliseconds".to_string(),
+            "millisecond".to_owned(),
+            "milliseconds".to_owned(),
             milliseconds,
         )
     } else {
-        "".to_string()
+        "".to_owned()
     };
 
     format!(
@@ -30,12 +30,12 @@ pub fn format_duration(duration: Duration) -> String {
         f_weeks, f_days, f_hours, f_minutes, f_seconds, f_milliseconds
     )
     .trim()
-    .to_string()
+    .to_owned()
 }
 
 fn format_unit(unit: String, units: String, count: i64) -> String {
     match count {
-        0 => "".to_string(),
+        0 => "".to_owned(),
         1 => format!(" 1 {}", unit),
         _ => format!(" {} {}", count, units),
     }
