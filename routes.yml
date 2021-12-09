@@ -1,0 +1,11 @@
+routes:
+    - filter:
+          name: ServiceDown
+      chat_id: 1
+    - filter:
+          facility: critical
+          name: CriticalServiceDown
+      chat_id: 2
+    - filter:
+          "*": "*"
+      chat_id: 3

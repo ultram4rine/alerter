@@ -1,4 +1,5 @@
 mod duration;
+mod routes;
 mod server;
 
 extern crate dotenv;
@@ -9,10 +10,12 @@ use anyhow::{anyhow, Result};
 use chrono::{DateTime, Local};
 use dotenv::dotenv;
 use handlebars::{handlebars_helper, Handlebars};
+use serde_yaml::from_str;
 use teloxide::Bot;
 use warp::Filter;
 
 use crate::duration::format_duration;
+use crate::routes::Routes;
 use crate::server::send_message;
 
 #[tokio::main]
@@ -25,13 +28,11 @@ async fn main() -> Result<()> {
     {
         Ok(v) => v,
         Err(err) => {
-            return Err(anyhow!(format!(
-                "failed to parse LISTEN_PORT to integer: {}",
-                err
-            )));
+            return Err(anyhow!("failed to parse LISTEN_PORT to integer: {}", err));
         }
     };
     let tmpl_path = env::var("ALERTER_TMPL_PATH").expect("TMPL_PATH not set");
+    let routes_path = env::var("ALERTER_ROUTES_PATH").expect("ROUTES_PATH not set");
     let token = env::var("ALERTER_TG_BOT_TOKEN").expect("TG_BOT_TOKEN not set");
     let chat_id = match env::var("ALERTER_TG_CHAT_ID")
         .expect("TG_CHAT_ID not set")
@@ -39,10 +40,7 @@ async fn main() -> Result<()> {
     {
         Ok(v) => v,
         Err(err) => {
-            return Err(anyhow!(format!(
-                "failed to parse TG_CHAT_ID to integer: {}",
-                err
-            )));
+            return Err(anyhow!("failed to parse TG_CHAT_ID to integer: {}", err));
         }
     };
 
@@ -67,6 +65,10 @@ async fn main() -> Result<()> {
     hb.register_helper("duration", Box::new(duration));
 
     let hb = Arc::new(hb);
+
+    let routes_str = fs::read_to_string(routes_path)?;
+    let routes: Routes = from_str(&routes_str)?;
+    println!("{:#?}", routes);
 
     warp::serve(
         warp::path::end()
