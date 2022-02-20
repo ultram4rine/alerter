@@ -21,3 +21,12 @@ serde_json = "1.0"
 teloxide = { version = "0.7" }
 tokio = { version = "1.16", features = ["rt-multi-thread", "macros"] }
 warp = "0.3"
+
+[package.metadata.generate-rpm]
+auto-req = "no"
+license = "Apache-2.0"
+release = "1"
+assets = [
+    { source = "target/release/alerter", dest = "/usr/bin/alerter" },
+    { source = "templates/*", dest = "/usr/share/alerter/templates", mode = "755", config = true },
+]
