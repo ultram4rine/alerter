@@ -1,6 +1,6 @@
 [package]
 name = "alerter"
-version = "0.2.0"
+version = "0.2.1"
 description = "Telegram bot for alerts from Prometheus"
 license-file = "LICENSE"
 authors = ["ultram4rine <ultramarine730@gmail.com>"]
