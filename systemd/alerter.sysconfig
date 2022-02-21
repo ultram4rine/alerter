@@ -1,0 +1,4 @@
+ALERTER_LISTEN_PORT = 48655
+ALERTER_TMPL_PATH = "/usr/share/alerter/templates/default.hbs"
+ALERTER_TG_BOT_TOKEN = ""
+ALERTER_TG_CHAT_ID = 

@@ -1,0 +1,11 @@
+[Unit]
+Description=Alerter bot for alerts in telegram
+After=network-online.target local-fs.target
+Wants=network-online.target local-fs.target
+Before=alertmanager.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/alerter
+ExecStart=/usr/bin/alerter
+Restart=on-failure
+KillMode=process

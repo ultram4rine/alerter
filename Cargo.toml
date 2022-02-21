@@ -24,9 +24,15 @@ warp = "0.3"
 
 [package.metadata.generate-rpm]
 auto-req = "no"
-license = "Apache-2.0"
+license = "MIT"
 release = "1"
 assets = [
-    { source = "target/release/alerter", dest = "/usr/bin/alerter" },
+    { source = "systemd/alerter.service", dest = "/usr/lib/systemd/system/alerter.service", 644 },
+    { source = "systemd/alerter.sysconfig", dest = "/etc/sysconfig/alerter", 644 },
+    { source = "target/release/alerter", dest = "/usr/bin/alerter", 755 },
     { source = "templates/*", dest = "/usr/share/alerter/templates", mode = "755", config = true },
 ]
+pre_install_script = """
+getent group alerter >/dev/null || groupadd -r alerter
+getent passwd alerter >/dev/null || useradd -r -g alerter -d /usr/share/alrter -s /sbin/nologin -c "Telegram alerter for Alertmanager" alerter
+"""
