@@ -37,11 +37,10 @@ jobs:
         run: |
           strip -s target/release/alerter
           cargo generate-rpm
-      - name: Upload binary artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          path: target/release/alerter
-      - name: Upload RPM artifact
-        uses: actions/upload-artifact@v2
-        with:
-          path: target/generate-rpm/alerter-*.rpm
+          name: artifacts
+          path: |
+            target/release/alerter
+            target/generate-rpm/alerter-*.rpm
