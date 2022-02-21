@@ -27,10 +27,10 @@ auto-req = "auto"
 license = "Apache-2.0"
 release = "1"
 assets = [
-    { source = "systemd/alerter.service", dest = "/usr/lib/systemd/system/alerter.service", mode="644" },
-    { source = "systemd/alerter.sysconfig", dest = "/etc/sysconfig/alerter", mode="644" },
-    { source = "target/release/alerter", dest = "/usr/bin/alerter", mode="755" },
+    { source = "target/release/alerter", dest = "/usr/bin/alerter", mode = "755" },
     { source = "templates/*", dest = "/usr/share/alerter/templates", mode = "755", config = true },
+    { source = "systemd/alerter.service", dest = "/usr/lib/systemd/system/alerter.service", mode = "644" },
+    { source = "systemd/alerter.sysconfig", dest = "/etc/sysconfig/alerter", mode = "644", config = true },
 ]
 pre_install_script = """
 getent group alerter >/dev/null || groupadd -r alerter
