@@ -33,7 +33,7 @@ You need [Rust](https://www.rust-lang.org/tools/install) installed.
    cargo generate-rpm
    ```
 
-3. Package should be in `target/generate-rpm/alerter-VERSION.ARCH.rpm`.
+3. Package should be in `target/generate-rpm/alerter-VERSION-RELEASE.ARCH.rpm`.
 
 ### Build from source
 
