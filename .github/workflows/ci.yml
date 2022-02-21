@@ -16,3 +16,17 @@ jobs:
         uses: Swatinem/rust-cache@v1
       - name: Build
         run: cargo build --release
+      - name: Setup cargo-generate-rpm
+        run: cargo install cargo-generate-rpm
+      - name: Make RPM package
+        run: |
+          strip -s target/release/alerter
+          cargo generate-rpm
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v2
+        with:
+          path: target/release/alerter
+      - name: Upload RPM artifact
+        uses: actions/upload-artifact@v2
+        with:
+          path: target/generate-rpm/alerter-*.rpm
