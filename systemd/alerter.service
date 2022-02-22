@@ -10,3 +10,6 @@ EnvironmentFile=/etc/sysconfig/alerter
 ExecStart=/usr/bin/alerter
 Restart=on-failure
 KillMode=process
+
+[Install]
+WantedBy=multi-user.target
