@@ -16,12 +16,17 @@ jobs:
     container:
       image: ${{ matrix.image }}
     steps:
+      - name: Setup Rust
+        run: |
+          if [[ ${MATRIX_IMAGE} == "ubuntu"* ]]; then
+            apt-get update
+            apt-get install -y curl
+          fi
+
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Setup Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
       - name: Restore cache
         uses: Swatinem/rust-cache@v1
       - name: Cache Cargo Deb if available
