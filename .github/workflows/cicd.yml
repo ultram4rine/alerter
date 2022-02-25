@@ -3,12 +3,14 @@ name: CICD
 on:
   push:
     paths-ignore:
+      - ".github/workflows/pkg.yml"
       - ".github/dependabot.yml"
       - "LICENSE"
       - "*.md"
       - "test.sh"
   pull_request:
     paths-ignore:
+      - ".github/workflows/pkg.yml"
       - ".github/dependabot.yml"
       - "LICENSE"
       - "*.md"
