@@ -2,7 +2,8 @@
 name = "alerter"
 version = "0.2.1"
 description = "Telegram bot for alerts from Prometheus"
-license-file = "LICENSE"
+readme = "README.md"
+license = "Apache-2.0"
 authors = ["ultram4rine <ultramarine730@gmail.com>"]
 edition = "2021"
 
@@ -23,24 +24,41 @@ teloxide = { version = "0.7" }
 tokio = { version = "1.16", features = ["rt-multi-thread", "macros"] }
 warp = "0.3"
 
+[package.metadata.deb]
+license-file = ["LICENSE", "0"]
+assets = [
+    [
+        "target/release/alerter",
+        "/usr/bin/alerter",
+        "755",
+    ],
+    [
+        "templates/*",
+        "/usr/share/alerter/templates/",
+        "755",
+    ],
+    [
+        "pkg/systemd/alerter.sysconfig",
+        "/etc/sysconfig/alerter",
+        "644",
+    ],
+]
+conf-files = ["/usr/share/alerter/templates/", "/etc/sysconfig/alerter"]
+systemd-units = { unit-name = "alerter", unit-scripts = "pkg/systemd", enable = false }
+maintainer-scripts = "pkg/scripts"
+
 [package.metadata.generate-rpm]
 auto-req = "auto"
-license = "Apache-2.0"
 release = "1"
 assets = [
     { source = "target/release/alerter", dest = "/usr/bin/alerter", mode = "755" },
     { source = "templates/*", dest = "/usr/share/alerter/templates", mode = "755", config = true },
-    { source = "systemd/alerter.service", dest = "/usr/lib/systemd/system/alerter.service", mode = "644" },
-    { source = "systemd/alerter.sysconfig", dest = "/etc/sysconfig/alerter", mode = "644", config = true },
+    { source = "pkg/systemd/alerter.service", dest = "/usr/lib/systemd/system/alerter.service", mode = "644" },
+    { source = "pkg/systemd/alerter.sysconfig", dest = "/etc/sysconfig/alerter", mode = "644", config = true },
+    { source = "pkg/scripts/postinst", dest = "/usr/share/alerter/scripts/postinst", mode = "755" },
+    { source = "pkg/scripts/prerm", dest = "/usr/share/alerter/scripts/prerm", mode = "755" },
+    { source = "pkg/scripts/postrm", dest = "/usr/share/alerter/scripts/postrm", mode = "755" },
 ]
-pre_install_script = """
-getent group alerter >/dev/null || groupadd -r alerter
-getent passwd alerter >/dev/null || useradd -r -g alerter -d /usr/share/alrter -s /sbin/nologin -c "Telegram alerter for Alertmanager" alerter
-"""
-pre_uninstall_script = """
-systemctl stop alerter.service
-"""
-post_uninstall_script = """
-getent passwd alerter >/dev/null || userdel --remove alerter
-getent group alerter >/dev/null || groupdel alerter
-"""
+post_install_script = "/usr/share/alerter/scripts/postinst"
+pre_uninstall_script = "/usr/share/alerter/scripts/prerm"
+post_uninstall_script = "/usr/share/alerter/scripts/postrm"

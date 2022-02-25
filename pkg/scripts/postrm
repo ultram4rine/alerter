@@ -1,0 +1,6 @@
+#!/bin/sh
+
+getent passwd alerter >/dev/null || userdel --remove alerter
+getent group alerter >/dev/null || groupdel alerter
+
+#DEBHELPER#
