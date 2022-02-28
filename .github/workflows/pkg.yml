@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Setup Rust
         run: |
-          if [[ ${MATRIX_IMAGE} == "ubuntu"* ]]; then
+          if [ ${MATRIX_IMAGE} = "ubuntu"* ]; then
             apt-get update
             apt-get install -y curl
           fi
@@ -27,8 +27,6 @@ jobs:
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Restore cache
-        uses: Swatinem/rust-cache@v1
       - name: Cache Cargo Deb if available
         id: cache-cargo-deb
         uses: actions/cache@v2
@@ -46,7 +44,7 @@ jobs:
         env:
           MATRIX_IMAGE: ${{ matrix.image }}
         run: |
-          if [[ ${MATRIX_IMAGE} == "ubuntu"* ]]; then
+          if [ ${MATRIX_IMAGE} = "ubuntu"* ]; then
             cargo install cargo-deb --version ${CARGO_DEB_VER} --locked
           fi
       - name: Install Cargo Generate RPM if needed
@@ -54,14 +52,14 @@ jobs:
         env:
           MATRIX_IMAGE: ${{ matrix.image }}
         run: |
-          if [[ ${MATRIX_IMAGE} == "fedora"* ]]; then
+          if [ ${MATRIX_IMAGE} = "fedora"* ]; then
             cargo install cargo-generate-rpm --version ${CARGO_GENERATE_RPM_VER} --locked
           fi
       - name: Create package
         run: |
-          if [[ ${MATRIX_IMAGE} == "ubuntu"* ]]; then
+          if [ ${MATRIX_IMAGE} = "ubuntu"* ]; then
             cargo deb
-          elif [[ ${MATRIX_IMAGE} == "fedora"* ]]; then
+          elif [ ${MATRIX_IMAGE} = "fedora"* ]; then
             cargo build --release
             strip -s target/release/alerter
             cargo generate-rpm
