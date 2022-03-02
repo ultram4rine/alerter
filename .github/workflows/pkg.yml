@@ -26,7 +26,7 @@ jobs:
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Cache Cargo Deb if available
         id: cache-cargo-deb
         uses: actions/cache@v2
