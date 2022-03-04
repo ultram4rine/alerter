@@ -29,6 +29,7 @@ jobs:
         run: |
           case ${OS_NAME} in
             ubuntu)
+              apt-get update
               apt-get install -y curl build-essential
               ;;
             fedora)
