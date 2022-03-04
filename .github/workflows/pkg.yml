@@ -43,10 +43,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install Cargo Deb if needed
-        if: steps.cache-cargo-deb.outputs.cache-hit != 'true'
+        if: env.OS_NAME == "ubuntu"
         run: cargo install cargo-deb --version ${CARGO_DEB_VER} --locked
       - name: Install Cargo Generate RPM if needed
-        if: steps.cache-cargo-generate-rpm.outputs.cache-hit != 'true'
+        if: env.OS_NAME == "fedora"
         run: cargo install cargo-generate-rpm --version ${CARGO_GENERATE_RPM_VER} --locked
       - name: Create package
         run: |
