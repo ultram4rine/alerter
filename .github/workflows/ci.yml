@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    paths-ignore:
+      - ".github/workflows/pkg.yml"
+      - ".github/dependabot.yml"
+      - "LICENSE"
+      - "*.md"
+      - "test.sh"
+  pull_request:
+    paths-ignore:
+      - ".github/workflows/pkg.yml"
+      - ".github/dependabot.yml"
+      - "LICENSE"
+      - "*.md"
+      - "test.sh"
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Restore cache
+        uses: Swatinem/rust-cache@v1
+      - name: Test
+        run: cargo test
+      - name: Build
+        run: cargo build --release
