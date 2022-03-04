@@ -29,6 +29,8 @@ jobs:
           toolchain: stable
       - name: Restore cache
         uses: Swatinem/rust-cache@v1
+      - name: Test
+        run: cargo test
       - name: Build
         run: cargo build --release
       - name: Setup cargo-generate-rpm

@@ -40,3 +40,81 @@ fn format_unit(unit: String, units: String, count: i64) -> String {
         _ => format!(" {} {}", count, units),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use chrono::DateTime;
+
+    use crate::duration::format_duration;
+
+    #[test]
+    fn test_format_duration_weeks() {
+        let time1 = DateTime::parse_from_rfc3339("1990-12-15T22:00:00Z").unwrap();
+        let time2 = DateTime::parse_from_rfc3339("1990-12-01T22:00:00Z").unwrap();
+        assert_eq!(
+            format_duration(time1.signed_duration_since(time2)),
+            "2 weeks"
+        );
+    }
+
+    #[test]
+    fn test_format_duration_days() {
+        let time1 = DateTime::parse_from_rfc3339("1990-12-03T22:00:00Z").unwrap();
+        let time2 = DateTime::parse_from_rfc3339("1990-12-01T22:00:00Z").unwrap();
+        assert_eq!(
+            format_duration(time1.signed_duration_since(time2)),
+            "2 days"
+        );
+    }
+
+    #[test]
+    fn test_format_duration_hour() {
+        let time1 = DateTime::parse_from_rfc3339("1990-12-01T23:00:00Z").unwrap();
+        let time2 = DateTime::parse_from_rfc3339("1990-12-01T22:00:00Z").unwrap();
+        assert_eq!(
+            format_duration(time1.signed_duration_since(time2)),
+            "1 hour"
+        );
+    }
+
+    #[test]
+    fn test_format_duration_minutes() {
+        let time1 = DateTime::parse_from_rfc3339("1990-12-01T22:30:00Z").unwrap();
+        let time2 = DateTime::parse_from_rfc3339("1990-12-01T22:00:00Z").unwrap();
+        assert_eq!(
+            format_duration(time1.signed_duration_since(time2)),
+            "30 minutes"
+        );
+    }
+
+    #[test]
+    fn test_format_duration_seconds() {
+        let time1 = DateTime::parse_from_rfc3339("1990-12-01T22:00:15Z").unwrap();
+        let time2 = DateTime::parse_from_rfc3339("1990-12-01T22:00:00Z").unwrap();
+        assert_eq!(
+            format_duration(time1.signed_duration_since(time2)),
+            "15 seconds"
+        );
+    }
+
+    #[test]
+    fn test_format_duration_milliseconds() {
+        let time1 = DateTime::parse_from_rfc3339("1990-12-01T22:00:00.500Z").unwrap();
+        let time2 = DateTime::parse_from_rfc3339("1990-12-01T22:00:00.000Z").unwrap();
+        assert_eq!(
+            format_duration(time1.signed_duration_since(time2)),
+            "500 milliseconds"
+        );
+    }
+
+    #[test]
+    fn test_format_duration_full() {
+        // Milliseconds ignored if seconds not 0.
+        let time1 = DateTime::parse_from_rfc3339("1990-12-17T23:30:15.500Z").unwrap();
+        let time2 = DateTime::parse_from_rfc3339("1990-12-01T22:00:00.000Z").unwrap();
+        assert_eq!(
+            format_duration(time1.signed_duration_since(time2)),
+            "2 weeks 2 days 1 hour 30 minutes 15 seconds"
+        );
+    }
+}
