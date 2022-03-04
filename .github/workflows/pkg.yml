@@ -62,14 +62,12 @@ jobs:
           esac
       - name: Verify package
         run: |
+          # do not use exis codes while errors occured
           case ${OS_NAME} in
             ubuntu)
-              lintian -v target/debian/*.deb
+              lintian -v target/debian/*.deb || true
               ;;
             fedora)
-              # cargo generate-rpm creates RPMs that rpmlint considers to have
-              # errors so don't use the rpmlint exit code otherwise we will always
-              # abort the workflow.
               rpmlint target/generate-rpm/*.rpm || true
               ;;
           esac
