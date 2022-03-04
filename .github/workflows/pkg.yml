@@ -16,54 +16,49 @@ jobs:
     container:
       image: ${{ matrix.image }}
     steps:
+      - name: Install libs on Ubuntu
+        if: startsWith(${{ matrix.image }}, "ubuntu")
+        run: |
+          apt-get update
+          apt-get install -y curl cmake
+      - name: Install libs on Fedora
+        if: startsWith(${{ matrix.image }}, "fedora")
+        run: dnf install -y cmake
       - name: Setup Rust
         run: |
-          if [ ${MATRIX_IMAGE} = "ubuntu"* ]; then
-            apt-get update
-            apt-get install -y curl
-          fi
-
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
       - name: Checkout
         uses: actions/checkout@v3
       - name: Cache Cargo Deb if available
+        if: startsWith(${{ matrix.image }}, "ubuntu")
         id: cache-cargo-deb
         uses: actions/cache@v2
         with:
           path: ~/.cargo/bin/cargo-deb
           key: ${{ matrix.image }}-cargo-deb-${{ env.CARGO_DEB_VER }}
       - name: Cache Cargo Generate RPM if available
+        if: startsWith(${{ matrix.image }}, "fedora")
         id: cache-cargo-generate-rpm
         uses: actions/cache@v2
         with:
           path: ~/.cargo/bin/cargo-generate-rpm
           key: ${{ matrix.image }}-cargo-generate-rpm-${{ env.CARGO_GENERATE_RPM_VER }}
       - name: Install Cargo Deb if needed
-        if: steps.cache-cargo-deb.outputs.cache-hit != 'true'
-        env:
-          MATRIX_IMAGE: ${{ matrix.image }}
-        run: |
-          if [ ${MATRIX_IMAGE} = "ubuntu"* ]; then
-            cargo install cargo-deb --version ${CARGO_DEB_VER} --locked
-          fi
+        if: steps.cache-cargo-deb.outputs.cache-hit != 'true' && startsWith(${{ matrix.image }}, "ubuntu")
+        run: cargo install cargo-deb --version ${CARGO_DEB_VER} --locked
       - name: Install Cargo Generate RPM if needed
-        if: steps.cache-cargo-generate-rpm.outputs.cache-hit != 'true'
-        env:
-          MATRIX_IMAGE: ${{ matrix.image }}
+        if: steps.cache-cargo-generate-rpm.outputs.cache-hit != 'true' && startsWith(${{ matrix.image }}, "fedora")
+        run: cargo install cargo-generate-rpm --version ${CARGO_GENERATE_RPM_VER} --locked
+      - name: Create Deb package
+        if: startsWith(${{ matrix.image }}, "ubuntu")
+        run: cargo deb
+      - name: Create RPM package
+        if: startsWith(${{ matrix.image }}, "fedora")
         run: |
-          if [ ${MATRIX_IMAGE} = "fedora"* ]; then
-            cargo install cargo-generate-rpm --version ${CARGO_GENERATE_RPM_VER} --locked
-          fi
-      - name: Create package
-        run: |
-          if [ ${MATRIX_IMAGE} = "ubuntu"* ]; then
-            cargo deb
-          elif [ ${MATRIX_IMAGE} = "fedora"* ]; then
-            cargo build --release
-            strip -s target/release/alerter
-            cargo generate-rpm
-          fi
+          cargo build --release
+          strip -s target/release/alerter
+          cargo generate-rpm
       - name: Upload package
         uses: actions/upload-artifact@v2
         with:
