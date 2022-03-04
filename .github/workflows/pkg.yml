@@ -30,10 +30,10 @@ jobs:
           case ${OS_NAME} in
             ubuntu)
               apt-get update
-              apt-get install -y curl build-essential libssl-dev pkg-config
+              apt-get install -y curl build-essential libssl-dev pkg-config lintian
               ;;
             fedora)
-              dnf install -y gcc cmake openssl-devel
+              dnf install -y gcc cmake openssl-devel rpmlint
               ;;
           esac
       - name: Setup Rust
@@ -58,6 +58,19 @@ jobs:
               cargo build --release
               strip -s target/release/alerter
               cargo generate-rpm
+              ;;
+          esac
+      - name: Verify package
+        run: |
+          case ${OS_NAME} in
+            ubuntu)
+              lintian -v target/debian/*.deb
+              ;;
+            fedora)
+              # cargo generate-rpm creates RPMs that rpmlint considers to have
+              # errors so don't use the rpmlint exit code otherwise we will always
+              # abort the workflow.
+              rpmlint target/generate-rpm/*.rpm || true
               ;;
           esac
       - name: Upload package
