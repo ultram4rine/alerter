@@ -25,7 +25,7 @@ jobs:
           MATRIX_IMAGE: ${{ matrix.image }}
       - name: Install libs
         env:
-          MATRIX_IMAGE: ${{ matrix.image }}
+          DEBIAN_FRONTEND: noninteractive
         run: |
           case ${OS_NAME} in
             ubuntu)
