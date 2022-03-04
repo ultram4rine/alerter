@@ -30,10 +30,10 @@ jobs:
           case ${OS_NAME} in
             ubuntu)
               apt-get update
-              apt-get install -y curl build-essential
+              apt-get install -y curl build-essential libssl-dev pkg-config
               ;;
             fedora)
-              dnf install -y gcc cmake
+              dnf install -y gcc cmake openssl-devel
               ;;
           esac
       - name: Setup Rust
