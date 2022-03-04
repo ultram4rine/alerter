@@ -33,7 +33,7 @@ jobs:
               apt-get install -y curl build-essential
               ;;
             fedora)
-              dnf install -y cmake
+              dnf install -y gcc cmake
               ;;
           esac
       - name: Setup Rust
