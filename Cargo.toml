@@ -57,8 +57,6 @@ assets = [
     { source = "pkg/systemd/alerter.sysconfig", dest = "/etc/sysconfig/alerter", mode = "644", config = true },
     { source = "pkg/scripts/postinst", dest = "/usr/share/alerter/scripts/postinst", mode = "755" },
     { source = "pkg/scripts/prerm", dest = "/usr/share/alerter/scripts/prerm", mode = "755" },
-    { source = "pkg/scripts/postrm", dest = "/usr/share/alerter/scripts/postrm", mode = "755" },
 ]
 post_install_script = "/usr/share/alerter/scripts/postinst"
 pre_uninstall_script = "/usr/share/alerter/scripts/prerm"
-post_uninstall_script = "/usr/share/alerter/scripts/postrm"
