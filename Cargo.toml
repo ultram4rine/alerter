@@ -34,7 +34,7 @@ assets = [
     ],
     [
         "templates/*",
-        "/usr/share/alerter/templates/",
+        "/etc/alerter/templates/",
         "755",
     ],
     [
@@ -43,7 +43,7 @@ assets = [
         "644",
     ],
 ]
-conf-files = ["/usr/share/alerter/templates/", "/etc/sysconfig/alerter"]
+conf-files = ["/etc/alerter/templates/default.hbs", "/etc/sysconfig/alerter"]
 systemd-units = { unit-name = "alerter", unit-scripts = "pkg/systemd", enable = false }
 maintainer-scripts = "pkg/scripts"
 
@@ -52,7 +52,7 @@ auto-req = "auto"
 release = "1"
 assets = [
     { source = "target/release/alerter", dest = "/usr/bin/alerter", mode = "755" },
-    { source = "templates/*", dest = "/usr/share/alerter/templates", mode = "755", config = true },
+    { source = "templates/*", dest = "/etc/alerter/templates", mode = "755", config = true },
     { source = "pkg/systemd/alerter.service", dest = "/usr/lib/systemd/system/alerter.service", mode = "644" },
     { source = "pkg/systemd/alerter.sysconfig", dest = "/etc/sysconfig/alerter", mode = "644", config = true },
     { source = "pkg/scripts/postinst", dest = "/usr/share/alerter/scripts/postinst", mode = "755" },
