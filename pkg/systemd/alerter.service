@@ -1,5 +1,5 @@
 [Unit]
-Description=Alerter bot for alerts in telegram
+Description=Telegram bot for alerts from Alertmanager
 After=network-online.target local-fs.target
 Wants=network-online.target local-fs.target
 
