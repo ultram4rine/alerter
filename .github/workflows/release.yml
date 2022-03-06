@@ -48,6 +48,7 @@ jobs:
           echo "OS_NAME=${IMAGE%:*}" >> $GITHUB_ENV
         env:
           MATRIX_IMAGE: ${{ matrix.image }}
+
       - name: Install libs
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -61,18 +62,39 @@ jobs:
               dnf install -y gcc cmake openssl-devel rpmlint
               ;;
           esac
+
       - name: Setup Rust
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Install Cargo Deb if needed
+
+      - name: Cache Cargo Deb if available
+        id: cache-cargo-deb
         if: env.OS_NAME == 'ubuntu'
-        run: cargo install cargo-deb --version ${CARGO_DEB_VER} --locked
-      - name: Install Cargo Generate RPM if needed
+        uses: actions/cache@v2
+        with:
+          path: ~/.cargo/bin/cargo-deb
+          key: cargo-deb-${{ env.CARGO_DEB_VER }}
+
+      - name: Cache Cargo Generate RPM if available
+        id: cache-cargo-generate-rpm
         if: env.OS_NAME == 'fedora'
+        uses: actions/cache@v2
+        with:
+          path: ~/.cargo/bin/cargo-generate-rpm
+          key: cargo-generate-rpm-${{ env.CARGO_GENERATE_RPM_VER }}
+
+      - name: Install Cargo Deb if needed
+        if: env.OS_NAME == 'ubuntu' && steps.cache-cargo-deb.outputs.cache-hit != 'true'
+        run: cargo install cargo-deb --version ${CARGO_DEB_VER} --locked
+
+      - name: Install Cargo Generate RPM if needed
+        if: env.OS_NAME == 'fedora' && steps.cache-cargo-generate-rpm.outputs.cache-hit != 'true'
         run: cargo install cargo-generate-rpm --version ${CARGO_GENERATE_RPM_VER} --locked
+
       - name: Create package
         run: |
           case ${OS_NAME} in
@@ -85,6 +107,7 @@ jobs:
               cargo generate-rpm
               ;;
           esac
+
       - name: Verify package
         run: |
           # do not use exis codes while errors occured
@@ -96,6 +119,7 @@ jobs:
               rpmlint target/generate-rpm/*.rpm || true
               ;;
           esac
+
       - name: Upload package
         uses: actions/upload-artifact@v3
         with:
