@@ -1,6 +1,23 @@
 name: Packaging
 
-on: [workflow_dispatch, workflow_call]
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Target name"
+        default: "x86_64-unknown-linux-gnu"
+        required: false
+        type: choice
+        options:
+          - "x86_64-unknown-linux-gnu"
+          - "armv7-unknown-linux-gnueabihf"
+  workflow_call:
+    inputs:
+      target:
+        description: "Target name"
+        default: "x86_64-unknown-linux-gnu"
+        required: false
+        type: string
 
 jobs:
   package:
@@ -41,7 +58,7 @@ jobs:
 
       - name: Setup Rust
         run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -t ${{ inputs.target }} -y
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Checkout
@@ -53,7 +70,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cargo/bin/cargo-deb
-          key: cargo-deb-${{ env.CARGO_DEB_VER }}
+          key: cargo-deb-${{ inputs.target }}-${{ env.CARGO_DEB_VER }}
 
       - name: Cache Cargo Generate RPM if available
         id: cache-cargo-generate-rpm
@@ -61,15 +78,15 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cargo/bin/cargo-generate-rpm
-          key: cargo-generate-rpm-${{ env.CARGO_GENERATE_RPM_VER }}
+          key: cargo-generate-rpm-${{ inputs.target }}-${{ env.CARGO_GENERATE_RPM_VER }}
 
       - name: Install Cargo Deb if needed
         if: env.OS_NAME == 'ubuntu' && steps.cache-cargo-deb.outputs.cache-hit != 'true'
-        run: cargo install cargo-deb --version ${CARGO_DEB_VER} --locked
+        run: cargo install cargo-deb --version ${CARGO_DEB_VER} --locked --target=${{ inputs.target }}
 
       - name: Install Cargo Generate RPM if needed
         if: env.OS_NAME == 'fedora' && steps.cache-cargo-generate-rpm.outputs.cache-hit != 'true'
-        run: cargo install cargo-generate-rpm --version ${CARGO_GENERATE_RPM_VER} --locked
+        run: cargo install cargo-generate-rpm --version ${CARGO_GENERATE_RPM_VER} --locked --target=${{ inputs.target }}
 
       - name: Restore cache
         uses: Swatinem/rust-cache@v1
@@ -78,10 +95,10 @@ jobs:
         run: |
           case ${OS_NAME} in
             ubuntu)
-              cargo deb
+              cargo deb --target ${{ inputs.target }}
               ;;
             fedora)
-              cargo build --release
+              cargo build --release --target ${{ inputs.target }}
               strip -s target/release/alerter
               cargo generate-rpm
               ;;
