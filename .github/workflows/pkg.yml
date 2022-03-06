@@ -10,15 +10,30 @@ jobs:
       CARGO_GENERATE_RPM_VER: 0.6.0
     strategy:
       matrix:
-        image:
-          - "ubuntu:20.04"
-          - "fedora:34"
-        target:
-          - "x86_64-unknown-linux-gnu"
-          - "armv7-unknown-linux-gnueabihf"
+        triple:
+          - {
+              image: "ubuntu:20.04",
+              target: "x86_64-unknown-linux-gnu",
+              cross: false,
+            }
+          - {
+              image: "ubuntu:20.04",
+              target: "armv7-unknown-linux-gnueabihf",
+              cross: true,
+            }
+          - {
+              image: "fedora:34",
+              target: "x86_64-unknown-linux-gnu",
+              cross: false,
+            }
+          - {
+              image: "fedora:34",
+              target: "armv7-unknown-linux-gnueabihf",
+              cross: true,
+            }
     runs-on: ubuntu-latest
     container:
-      image: ${{ matrix.image }}
+      image: ${{ matrix.triple.image }}
     steps:
       - name: Set vars
         id: setvars
@@ -27,8 +42,8 @@ jobs:
           echo "OS_NAME=${IMAGE%:*}" >> $GITHUB_ENV
           echo "CARGO_BUILD_TARGET=${MATRIX_TARGET}" >> $GITHUB_ENV
         env:
-          MATRIX_IMAGE: ${{ matrix.image }}
-          MATRIX_TARGET: ${{ matrix.target }}
+          MATRIX_IMAGE: ${{ matrix.triple.image }}
+          MATRIX_TARGET: ${{ matrix.triple.target }}
 
       - name: Install libs
         env:
@@ -45,9 +60,12 @@ jobs:
           esac
 
       - name: Setup Rust
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -t ${{ matrix.target }} -y
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          target: ${{ matrix.triple.target }}
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -58,7 +76,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cargo/bin/cargo-deb
-          key: cargo-deb-${{ matrix.target }}-${{ env.CARGO_DEB_VER }}
+          key: cargo-deb-${{ env.CARGO_DEB_VER }}-${{ matrix.triple.target }}
 
       - name: Cache Cargo Generate RPM if available
         id: cache-cargo-generate-rpm
@@ -66,15 +84,23 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cargo/bin/cargo-generate-rpm
-          key: cargo-generate-rpm-${{ matrix.target }}-${{ env.CARGO_GENERATE_RPM_VER }}
+          key: cargo-generate-rpm-${{ env.CARGO_GENERATE_RPM_VER }}-${{ matrix.triple.target }}
 
       - name: Install Cargo Deb if needed
         if: env.OS_NAME == 'ubuntu' && steps.cache-cargo-deb.outputs.cache-hit != 'true'
-        run: cargo install cargo-deb --version ${CARGO_DEB_VER} --locked --target=${CARGO_BUILD_TARGET}
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: cargo-deb --version ${CARGO_DEB_VER} --locked --target=${CARGO_BUILD_TARGET}
+          use-cross: ${{ matrix.triple.cross }}
 
       - name: Install Cargo Generate RPM if needed
         if: env.OS_NAME == 'fedora' && steps.cache-cargo-generate-rpm.outputs.cache-hit != 'true'
-        run: cargo install cargo-generate-rpm --version ${CARGO_GENERATE_RPM_VER} --locked --target=${CARGO_BUILD_TARGET}
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: cargo-generate-rpm --version ${CARGO_GENERATE_RPM_VER} --locked --target=${CARGO_BUILD_TARGET}
+          use-cross: ${{ matrix.triple.cross }}
 
       - name: Restore cache
         uses: Swatinem/rust-cache@v1
