@@ -25,6 +25,7 @@ tokio = { version = "1.16", features = ["rt-multi-thread", "macros"] }
 warp = "0.3"
 
 [package.metadata.deb]
+section = "misc"
 license-file = ["LICENSE", "0"]
 assets = [
     [
@@ -35,7 +36,7 @@ assets = [
     [
         "templates/*",
         "/etc/alerter/templates/",
-        "755",
+        "644",
     ],
     [
         "pkg/systemd/alerter.sysconfig",
@@ -52,7 +53,7 @@ auto-req = "auto"
 release = "1"
 assets = [
     { source = "target/release/alerter", dest = "/usr/bin/alerter", mode = "755" },
-    { source = "templates/*", dest = "/etc/alerter/templates", mode = "755", config = true },
+    { source = "templates/*", dest = "/etc/alerter/templates", mode = "644", config = true },
     { source = "pkg/systemd/alerter.service", dest = "/usr/lib/systemd/system/alerter.service", mode = "644" },
     { source = "pkg/systemd/alerter.sysconfig", dest = "/etc/sysconfig/alerter", mode = "644", config = true },
     { source = "pkg/scripts/postinst", dest = "/usr/share/alerter/scripts/postinst", mode = "755" },
