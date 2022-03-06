@@ -1,0 +1,162 @@
+name: Release
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  publish_crate:
+    name: Publish crate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Login to crates.io
+        uses: actions-rs/cargo@v1
+        with:
+          command: login
+          args: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      - name: Publish to crates.io
+        uses: actions-rs/cargo@v1
+        with:
+          command: publish
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: alerter
+          path: target/release/alerter
+
+  package:
+    name: Package
+    env:
+      CARGO_DEB_VER: 1.36.0
+      CARGO_GENERATE_RPM_VER: 0.6.0
+    strategy:
+      matrix:
+        image:
+          - "ubuntu:20.04"
+          - "fedora:34"
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.image }}
+    steps:
+      - name: Set vars
+        id: setvars
+        run: |
+          IMAGE="${MATRIX_IMAGE}"
+          echo "OS_NAME=${IMAGE%:*}" >> $GITHUB_ENV
+        env:
+          MATRIX_IMAGE: ${{ matrix.image }}
+      - name: Install libs
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          case ${OS_NAME} in
+            ubuntu)
+              apt-get update
+              apt-get install -y curl build-essential libssl-dev pkg-config lintian
+              ;;
+            fedora)
+              dnf install -y gcc cmake openssl-devel rpmlint
+              ;;
+          esac
+      - name: Setup Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Cargo Deb if needed
+        if: env.OS_NAME == 'ubuntu'
+        run: cargo install cargo-deb --version ${CARGO_DEB_VER} --locked
+      - name: Install Cargo Generate RPM if needed
+        if: env.OS_NAME == 'fedora'
+        run: cargo install cargo-generate-rpm --version ${CARGO_GENERATE_RPM_VER} --locked
+      - name: Create package
+        run: |
+          case ${OS_NAME} in
+            ubuntu)
+              cargo deb
+              ;;
+            fedora)
+              cargo build --release
+              strip -s target/release/alerter
+              cargo generate-rpm
+              ;;
+          esac
+      - name: Verify package
+        run: |
+          # do not use exis codes while errors occured
+          case ${OS_NAME} in
+            ubuntu)
+              lintian -v target/debian/*.deb || true
+              ;;
+            fedora)
+              rpmlint target/generate-rpm/*.rpm || true
+              ;;
+          esac
+      - name: Upload package
+        uses: actions/upload-artifact@v3
+        with:
+          name: alerter-${{ env.OS_NAME }}
+          path: |
+            target/debian/*.deb
+            target/generate-rpm/*.rpm
+
+  upload_artifacts:
+    name: Upload artifacts to releasse
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - package
+    steps:
+      - name: Download binary
+        uses: actions/download-artifact@v3
+        with:
+          name: alerter
+          path: binary
+      - name: Download Deb package
+        uses: actions/download-artifact@v3
+        with:
+          name: alerter-ubuntu
+          path: packages
+      - name: Download RPM package
+        uses: actions/download-artifact@v3
+        with:
+          name: alerter-fedora
+          path: packages
+      - name: Upload binary to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: binary/alerter
+          asset_name: alerter-$tag
+          tag: ${{ github.ref }}
+      - name: Upload packages to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: packages/*
+          file_glob: true
+          tag: ${{ github.ref }}
