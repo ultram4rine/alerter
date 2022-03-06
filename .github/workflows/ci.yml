@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     paths-ignore:
+      - ".github/workflows/release.yml"
       - ".github/workflows/pkg.yml"
       - ".github/dependabot.yml"
       - "LICENSE"
@@ -10,6 +11,7 @@ on:
       - "test.sh"
   pull_request:
     paths-ignore:
+      - ".github/workflows/release.yml"
       - ".github/workflows/pkg.yml"
       - ".github/dependabot.yml"
       - "LICENSE"
@@ -32,4 +34,4 @@ jobs:
       - name: Test
         run: cargo test
       - name: Build
-        run: cargo build --release
+        run: cargo build
