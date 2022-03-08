@@ -3,61 +3,106 @@ name: Packaging
 on: [workflow_dispatch, workflow_call]
 
 jobs:
-  package:
-    name: Package
+  deb:
+    name: Deb package
     env:
       CARGO_DEB_VER: 1.36.0
-      CARGO_GENERATE_RPM_VER: 0.6.0
     strategy:
       matrix:
-        triple:
-          - {
-              image: "ubuntu:20.04",
-              target: "x86_64-unknown-linux-gnu",
-              cross: false,
-            }
-          - {
-              image: "ubuntu:20.04",
-              target: "armv7-unknown-linux-gnueabihf",
-              cross: true,
-            }
-          - {
-              image: "fedora:34",
-              target: "x86_64-unknown-linux-gnu",
-              cross: false,
-            }
-          - {
-              image: "fedora:34",
-              target: "armv7-unknown-linux-gnueabihf",
-              cross: true,
-            }
+        image:
+          - "ubuntu:20.04"
+        target:
+          - "x86_64-unknown-linux-gnu"
     runs-on: ubuntu-latest
     container:
-      image: ${{ matrix.triple.image }}
+      image: ${{ matrix.image }}
     steps:
       - name: Set vars
         id: setvars
-        run: |
-          IMAGE="${MATRIX_IMAGE}"
-          echo "OS_NAME=${IMAGE%:*}" >> $GITHUB_ENV
-          echo "CARGO_BUILD_TARGET=${MATRIX_TARGET}" >> $GITHUB_ENV
+        run: echo "CARGO_BUILD_TARGET=${MATRIX_TARGET}" >> $GITHUB_ENV
         env:
-          MATRIX_IMAGE: ${{ matrix.triple.image }}
-          MATRIX_TARGET: ${{ matrix.triple.target }}
+          MATRIX_TARGET: ${{ matrix.target }}
 
       - name: Install libs
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          case ${OS_NAME} in
-            ubuntu)
-              apt-get update
-              apt-get install -y curl build-essential libssl-dev pkg-config lintian
-              ;;
-            fedora)
-              dnf install -y gcc cmake openssl-devel rpmlint
-              ;;
-          esac
+          apt-get update
+          apt-get install -y curl build-essential libssl-dev pkg-config lintian
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          target: ${{ matrix.target }}
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Cache Cargo Deb if available
+        id: cache-cargo-deb
+        if: env.OS_NAME == 'ubuntu'
+        uses: actions/cache@v2
+        with:
+          path: ~/.cargo/bin/cargo-deb
+          key: cargo-deb-${{ env.CARGO_DEB_VER }}-${{ matrix.target }}
+
+      - name: Install Cargo Deb if needed
+        if: env.OS_NAME == 'ubuntu' && steps.cache-cargo-deb.outputs.cache-hit != 'true'
+        uses: actions-rs/cargo@v1
+        env:
+          CARGO_TARGET: ${{ matrix.target }}
+        with:
+          command: install
+          args: cargo-deb --vers=${{ env.CARGO_DEB_VER }} --locked --target=${{ env.CARGO_TARGET }}
+
+      - name: Restore cache
+        uses: Swatinem/rust-cache@v1
+
+      - name: Create package
+        uses: actions-rs/cargo@v1
+        with:
+          command: deb
+          args: --target ${CARGO_BUILD_TARGET}
+
+      - name: Verify package
+        run: |
+          # do not use exis codes while errors occured
+          lintian -v target/debian/*.deb || true
+
+      - name: Upload package
+        uses: actions/upload-artifact@v3
+        with:
+          name: alerter-deb
+          path: |
+            target/debian/*.deb
+
+  rpm:
+    name: RPM package
+    env:
+      CARGO_GENERATE_RPM_VER: 0.6.0
+    strategy:
+      matrix:
+        image:
+          - "fedora:34"
+        target:
+          - "x86_64-unknown-linux-gnu"
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.image }}
+    steps:
+      - name: Set vars
+        id: setvars
+        run: echo "CARGO_BUILD_TARGET=${MATRIX_TARGET}" >> $GITHUB_ENV
+        env:
+          MATRIX_TARGET: ${{ matrix.target }}
+
+      - name: Install libs
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: dnf install -y gcc cmake openssl-devel rpmlint
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
@@ -70,74 +115,49 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cache Cargo Deb if available
-        id: cache-cargo-deb
-        if: env.OS_NAME == 'ubuntu'
-        uses: actions/cache@v2
-        with:
-          path: ~/.cargo/bin/cargo-deb
-          key: cargo-deb-${{ env.CARGO_DEB_VER }}-${{ matrix.triple.target }}
-
       - name: Cache Cargo Generate RPM if available
         id: cache-cargo-generate-rpm
         if: env.OS_NAME == 'fedora'
         uses: actions/cache@v2
         with:
           path: ~/.cargo/bin/cargo-generate-rpm
-          key: cargo-generate-rpm-${{ env.CARGO_GENERATE_RPM_VER }}-${{ matrix.triple.target }}
-
-      - name: Install Cargo Deb if needed
-        if: env.OS_NAME == 'ubuntu' && steps.cache-cargo-deb.outputs.cache-hit != 'true'
-        uses: actions-rs/cargo@v1
-        env:
-          CARGO_TARGET: ${{ matrix.triple.target }}
-        with:
-          command: install
-          args: cargo-deb --vers=${{ env.CARGO_DEB_VER }} --locked --target=${{ env.CARGO_TARGET }}
-          use-cross: ${{ matrix.triple.cross }}
+          key: cargo-generate-rpm-${{ env.CARGO_GENERATE_RPM_VER }}-${{ matrix.target }}
 
       - name: Install Cargo Generate RPM if needed
         if: env.OS_NAME == 'fedora' && steps.cache-cargo-generate-rpm.outputs.cache-hit != 'true'
         uses: actions-rs/cargo@v1
         env:
-          CARGO_TARGET: ${{ matrix.triple.target }}
+          CARGO_TARGET: ${{ matrix.target }}
         with:
           command: install
           args: cargo-generate-rpm --vers=${{ env.CARGO_GENERATE_RPM_VER }} --locked --target=${{ env.CARGO_TARGET }}
-          use-cross: ${{ matrix.triple.cross }}
 
       - name: Restore cache
         uses: Swatinem/rust-cache@v1
 
+      - name: Build binary
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target ${CARGO_BUILD_TARGET}
+
+      - name: Remove all symbol and relocation information
+        run: strip -s target/release/alerter
+
       - name: Create package
-        run: |
-          case ${OS_NAME} in
-            ubuntu)
-              cargo deb --target ${CARGO_BUILD_TARGET}
-              ;;
-            fedora)
-              cargo build --release --target ${CARGO_BUILD_TARGET}
-              strip -s target/release/alerter
-              cargo generate-rpm
-              ;;
-          esac
+        uses: actions-rs/cargo@v1
+        with:
+          command: generate-rpm
+          args: --target ${CARGO_BUILD_TARGET}
 
       - name: Verify package
         run: |
           # do not use exis codes while errors occured
-          case ${OS_NAME} in
-            ubuntu)
-              lintian -v target/debian/*.deb || true
-              ;;
-            fedora)
-              rpmlint target/generate-rpm/*.rpm || true
-              ;;
-          esac
+          rpmlint target/generate-rpm/*.rpm || true
 
       - name: Upload package
         uses: actions/upload-artifact@v3
         with:
-          name: alerter-${{ env.OS_NAME }}
+          name: alerter-rpm
           path: |
-            target/debian/*.deb
             target/generate-rpm/*.rpm
