@@ -41,24 +41,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cache Cargo Deb if available
-        id: cache-cargo-deb
-        uses: actions/cache@v2
-        with:
-          path: ~/.cargo/bin/cargo-deb
-          key: cargo-deb-${{ env.CARGO_DEB_VER }}-${{ matrix.target }}
+      - name: Restore cache
+        uses: Swatinem/rust-cache@v1
 
-      - name: Install Cargo Deb if needed
-        if: steps.cache-cargo-deb.outputs.cache-hit != 'true'
+      - name: Install Cargo Deb
         uses: actions-rs/cargo@v1
         env:
           CARGO_TARGET: ${{ matrix.target }}
         with:
           command: install
           args: cargo-deb --vers=${{ env.CARGO_DEB_VER }} --locked --target=${{ env.CARGO_TARGET }}
-
-      - name: Restore cache
-        uses: Swatinem/rust-cache@v1
 
       - name: Create package
         uses: actions-rs/cargo@v1
@@ -114,24 +106,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cache Cargo Generate RPM if available
-        id: cache-cargo-generate-rpm
-        uses: actions/cache@v2
-        with:
-          path: ~/.cargo/bin/cargo-generate-rpm
-          key: cargo-generate-rpm-${{ env.CARGO_GENERATE_RPM_VER }}-${{ matrix.target }}
+      - name: Restore cache
+        uses: Swatinem/rust-cache@v1
 
-      - name: Install Cargo Generate RPM if needed
-        if: steps.cache-cargo-generate-rpm.outputs.cache-hit != 'true'
+      - name: Install Cargo Generate RPM
         uses: actions-rs/cargo@v1
         env:
           CARGO_TARGET: ${{ matrix.target }}
         with:
           command: install
           args: cargo-generate-rpm --vers=${{ env.CARGO_GENERATE_RPM_VER }} --locked --target=${{ env.CARGO_TARGET }}
-
-      - name: Restore cache
-        uses: Swatinem/rust-cache@v1
 
       - name: Build binary
         uses: actions-rs/cargo@v1
