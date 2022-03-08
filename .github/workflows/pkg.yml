@@ -46,6 +46,7 @@ jobs:
         with:
           command: install
           args: cargo-deb --vers=${{ env.CARGO_DEB_VER }} --locked --target=${{ env.CARGO_TARGET }}
+          use-cross: true
 
       - name: Create package
         uses: actions-rs/cargo@v1
@@ -54,6 +55,7 @@ jobs:
         with:
           command: deb
           args: --target ${{ env.CARGO_TARGET }}
+          use-cross: true
 
       - name: Verify package
         run: |
@@ -106,6 +108,7 @@ jobs:
         with:
           command: install
           args: cargo-generate-rpm --vers=${{ env.CARGO_GENERATE_RPM_VER }} --locked --target=${{ env.CARGO_TARGET }}
+          use-cross: true
 
       - name: Build binary
         uses: actions-rs/cargo@v1
@@ -114,6 +117,7 @@ jobs:
         with:
           command: build
           args: --release --target ${{ env.CARGO_TARGET }}
+          use-cross: true
 
       - name: Remove all symbol and relocation information
         run: strip -s target/${{ matrix.target }}/release/alerter
@@ -125,6 +129,7 @@ jobs:
         with:
           command: generate-rpm
           args: --target ${{ env.CARGO_TARGET }}
+          use-cross: true
 
       - name: Verify package
         run: |
