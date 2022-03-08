@@ -71,14 +71,14 @@ jobs:
       - name: Verify package
         run: |
           # do not use exis codes while errors occured
-          lintian -v target/debian/*.deb || true
+          lintian -v target/${{ matrix.target }}/debian/*.deb || true
 
       - name: Upload package
         uses: actions/upload-artifact@v3
         with:
           name: alerter-deb
           path: |
-            target/debian/*.deb
+            target/${{ matrix.target }}/debian/*.deb
 
   rpm:
     name: RPM package
@@ -142,7 +142,7 @@ jobs:
           args: --release --target ${{ env.CARGO_TARGET }}
 
       - name: Remove all symbol and relocation information
-        run: strip -s target/release/alerter
+        run: strip -s target/${{ matrix.target }}/release/alerter
 
       - name: Create package
         uses: actions-rs/cargo@v1
@@ -155,11 +155,11 @@ jobs:
       - name: Verify package
         run: |
           # do not use exis codes while errors occured
-          rpmlint target/generate-rpm/*.rpm || true
+          rpmlint target/${{ matrix.target }}/generate-rpm/*.rpm || true
 
       - name: Upload package
         uses: actions/upload-artifact@v3
         with:
           name: alerter-rpm
           path: |
-            target/generate-rpm/*.rpm
+            target/${{ matrix.target }}/generate-rpm/*.rpm
