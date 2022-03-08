@@ -62,9 +62,11 @@ jobs:
 
       - name: Create package
         uses: actions-rs/cargo@v1
+        env:
+          CARGO_TARGET: ${{ matrix.target }}
         with:
           command: deb
-          args: --target ${CARGO_BUILD_TARGET}
+          args: --target ${{ env.CARGO_TARGET }}
 
       - name: Verify package
         run: |
@@ -133,18 +135,22 @@ jobs:
 
       - name: Build binary
         uses: actions-rs/cargo@v1
+        env:
+          CARGO_TARGET: ${{ matrix.target }}
         with:
           command: build
-          args: --release --target ${CARGO_BUILD_TARGET}
+          args: --release --target ${{ env.CARGO_TARGET }}
 
       - name: Remove all symbol and relocation information
         run: strip -s target/release/alerter
 
       - name: Create package
         uses: actions-rs/cargo@v1
+        env:
+          CARGO_TARGET: ${{ matrix.target }}
         with:
           command: generate-rpm
-          args: --target ${CARGO_BUILD_TARGET}
+          args: --target ${{ env.CARGO_TARGET }}
 
       - name: Verify package
         run: |
