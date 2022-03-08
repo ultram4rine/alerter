@@ -83,7 +83,7 @@ jobs:
       image: ${{ matrix.image }}
     steps:
       - name: Install libs
-        run: dnf install -y gcc cmake openssl-devel rpmlint
+        run: dnf install --refresh -y gcc cmake openssl-devel rpmlint
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
