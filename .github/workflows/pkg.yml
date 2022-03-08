@@ -43,14 +43,13 @@ jobs:
 
       - name: Cache Cargo Deb if available
         id: cache-cargo-deb
-        if: env.OS_NAME == 'ubuntu'
         uses: actions/cache@v2
         with:
           path: ~/.cargo/bin/cargo-deb
           key: cargo-deb-${{ env.CARGO_DEB_VER }}-${{ matrix.target }}
 
       - name: Install Cargo Deb if needed
-        if: env.OS_NAME == 'ubuntu' && steps.cache-cargo-deb.outputs.cache-hit != 'true'
+        if: steps.cache-cargo-deb.outputs.cache-hit != 'true'
         uses: actions-rs/cargo@v1
         env:
           CARGO_TARGET: ${{ matrix.target }}
@@ -100,8 +99,6 @@ jobs:
           MATRIX_TARGET: ${{ matrix.target }}
 
       - name: Install libs
-        env:
-          DEBIAN_FRONTEND: noninteractive
         run: dnf install -y gcc cmake openssl-devel rpmlint
 
       - name: Setup Rust
@@ -117,14 +114,13 @@ jobs:
 
       - name: Cache Cargo Generate RPM if available
         id: cache-cargo-generate-rpm
-        if: env.OS_NAME == 'fedora'
         uses: actions/cache@v2
         with:
           path: ~/.cargo/bin/cargo-generate-rpm
           key: cargo-generate-rpm-${{ env.CARGO_GENERATE_RPM_VER }}-${{ matrix.target }}
 
       - name: Install Cargo Generate RPM if needed
-        if: env.OS_NAME == 'fedora' && steps.cache-cargo-generate-rpm.outputs.cache-hit != 'true'
+        if: steps.cache-cargo-generate-rpm.outputs.cache-hit != 'true'
         uses: actions-rs/cargo@v1
         env:
           CARGO_TARGET: ${{ matrix.target }}
