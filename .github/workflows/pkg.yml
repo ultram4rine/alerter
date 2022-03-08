@@ -45,8 +45,7 @@ jobs:
           CARGO_TARGET: ${{ matrix.target }}
         with:
           command: install
-          args: cargo-deb --vers=${{ env.CARGO_DEB_VER }} --locked --target=${{ env.CARGO_TARGET }}
-          use-cross: true
+          args: cargo-deb --vers=${{ env.CARGO_DEB_VER }} --locked
 
       - name: Create package
         uses: actions-rs/cargo@v1
@@ -107,8 +106,7 @@ jobs:
           CARGO_TARGET: ${{ matrix.target }}
         with:
           command: install
-          args: cargo-generate-rpm --vers=${{ env.CARGO_GENERATE_RPM_VER }} --locked --target=${{ env.CARGO_TARGET }}
-          use-cross: true
+          args: cargo-generate-rpm --vers=${{ env.CARGO_GENERATE_RPM_VER }} --locked
 
       - name: Build binary
         uses: actions-rs/cargo@v1
