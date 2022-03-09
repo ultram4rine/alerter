@@ -1,5 +1,7 @@
 # Alerter
 
+![Crates.io](https://img.shields.io/crates/v/alerter?style=flat-square)
+
 Telegram bot for alerts from Prometheus
 
 ## Configuration
