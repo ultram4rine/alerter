@@ -19,6 +19,16 @@ Use environment variables or command-line flags to configure `alerter`:
 
 You need [Rust](https://www.rust-lang.org/tools/install) installed.
 
+### Crates.io
+
+You can install alerter from [crates.io](https://crates.io/crates/alerter):
+
+```sh
+cargo install alerter
+```
+
+Then download [template](./templates/default.hbs) and run.
+
 ### RPM
 
 1. Install [cargo-generate-rpm](https://crates.io/crates/cargo-generate-rpm):
