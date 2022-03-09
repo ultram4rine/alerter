@@ -13,7 +13,6 @@ jobs:
           - "ubuntu:20.04"
         target:
           - "x86_64-unknown-linux-gnu"
-          - "armv7-unknown-linux-gnueabihf"
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.image }}
@@ -54,7 +53,6 @@ jobs:
         with:
           command: deb
           args: --target ${{ env.CARGO_TARGET }}
-          use-cross: true
 
       - name: Verify package
         run: |
@@ -64,7 +62,7 @@ jobs:
       - name: Upload package
         uses: actions/upload-artifact@v3
         with:
-          name: alerter-deb-${{ matrix.target }}
+          name: alerter-deb
           path: |
             target/${{ matrix.target }}/debian/*.deb
 
@@ -78,7 +76,6 @@ jobs:
           - "fedora:34"
         target:
           - "x86_64-unknown-linux-gnu"
-          - "armv7-unknown-linux-gnueabihf"
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.image }}
@@ -115,7 +112,6 @@ jobs:
         with:
           command: build
           args: --release --target ${{ env.CARGO_TARGET }}
-          use-cross: true
 
       - name: Remove all symbol and relocation information
         run: strip -s target/${{ matrix.target }}/release/alerter
@@ -127,7 +123,6 @@ jobs:
         with:
           command: generate-rpm
           args: --target ${{ env.CARGO_TARGET }}
-          use-cross: true
 
       - name: Verify package
         run: |
@@ -137,6 +132,6 @@ jobs:
       - name: Upload package
         uses: actions/upload-artifact@v3
         with:
-          name: alerter-rpm-${{ matrix.target }}
+          name: alerter-rpm
           path: |
             target/${{ matrix.target }}/generate-rpm/*.rpm
