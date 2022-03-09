@@ -29,7 +29,6 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-          target: ${{ matrix.target }}
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -51,13 +50,13 @@ jobs:
       - name: Archive
         run: |
           mv target/release/alerter .
-          tar -czvf alerter.tar.gz alerter templates
+          tar -czvf alerter-$(cargo read-manifest | sed 's/.*"version":"\{0,1\}\([^,"]*\)"\{0,1\}.*/\1/').tar.gz alerter templates
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: alerter-archive
-          path: alerter.tar.gz
+          path: alerter-*.tar.gz
 
   package:
     name: Package
@@ -97,5 +96,5 @@ jobs:
           draft: true
           fail_on_unmatched_files: true
           files: |
-            archive/alerter.tar.gz
+            archive/alerter-*.tar.gz
             packages/**/*
