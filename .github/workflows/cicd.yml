@@ -60,6 +60,8 @@ jobs:
           path: alerter.tar.gz
 
   package:
+    name: Package
+    needs: build
     if: startsWith(github.ref, 'refs/tags/')
     uses: ./.github/workflows/pkg.yml
 
