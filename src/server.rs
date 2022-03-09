@@ -45,10 +45,10 @@ pub async fn send_message(
     msg.parse_mode = Some(Html);
 
     match msg.send().await {
-        Ok(_) => return Ok(StatusCode::OK),
+        Ok(_) => Ok(StatusCode::OK),
         Err(err) => {
             error!("failed to send message: {}", err);
-            return Ok(StatusCode::INTERNAL_SERVER_ERROR);
+            Ok(StatusCode::INTERNAL_SERVER_ERROR)
         }
-    };
+    }
 }

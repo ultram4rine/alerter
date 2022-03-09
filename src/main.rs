@@ -81,7 +81,7 @@ async fn main() -> Result<()> {
             .and(warp::body::json())
             .and(warp::any().map(move || bot.clone()))
             .and(warp::any().map(move || hb.clone()))
-            .and(warp::any().map(move || chat_id.clone()))
+            .and(warp::any().map(move || chat_id))
             .and_then(send_message),
     )
     .run(([0, 0, 0, 0], listen_port))
