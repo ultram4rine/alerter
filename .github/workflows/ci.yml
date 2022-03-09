@@ -22,16 +22,49 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - "x86_64-unknown-linux-gnu"
+          - "armv7-unknown-linux-gnueabihf"
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: stable
+          override: true
+          target: ${{ matrix.target }}
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Restore cache
         uses: Swatinem/rust-cache@v1
+
       - name: Test
-        run: cargo test
+        uses: actions-rs/cargo@v1
+        env:
+          TARGET: ${{ matrix.target }}
+        with:
+          command: test
+          args: --target ${{ matrix.target }}
+          use-cross: true
+
       - name: Build
-        run: cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target ${{ matrix.target }}
+          use-cross: true
+
+      - name: Archive
+        run: |
+          mv target/${{ matrix.target }}/release/alerter .
+          tar -czvf alerter-${{ matrix.target }}.tar.gz alerter templates
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: alerter-${{ matrix.target }}.tar.gz
+          path: alerter-${{ matrix.target }}.tar.gz
