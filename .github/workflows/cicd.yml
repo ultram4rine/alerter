@@ -82,13 +82,13 @@ jobs:
       - name: Download Deb package
         uses: actions/download-artifact@v3
         with:
-          name: alerter-ubuntu
+          name: alerter-deb
           path: packages
 
       - name: Download RPM package
         uses: actions/download-artifact@v3
         with:
-          name: alerter-fedora
+          name: alerter-rpm
           path: packages
 
       - name: Release
