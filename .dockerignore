@@ -1,0 +1,7 @@
+.github
+pkg
+target
+.gitignore
+LICENSE
+*.md
+test.sh
