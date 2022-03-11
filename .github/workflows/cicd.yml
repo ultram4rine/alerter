@@ -121,6 +121,12 @@ jobs:
       - package
       - docker
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create release body file
+        run: awk -v ver=v$(cargo read-manifest | sed 's/.*"version":"\{0,1\}\([^,"]*\)"\{0,1\}.*/\1/') '/^##/ { if (p) { exit }; if ($2 == ver) { p=1; next } } p && NF' CHANGELOG.md > changes.txt
+
       - name: Download archive
         uses: actions/download-artifact@v3
         with:
@@ -138,12 +144,6 @@ jobs:
         with:
           name: alerter-rpm
           path: packages
-
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Create release body file
-        run: awk -v ver=v$(cargo read-manifest | sed 's/.*"version":"\{0,1\}\([^,"]*\)"\{0,1\}.*/\1/') '/^##/ { if (p) { exit }; if ($2 == ver) { p=1; next } } p && NF' CHANGELOG.md > changes.txt
 
       - name: Release
         uses: softprops/action-gh-release@v1
