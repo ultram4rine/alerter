@@ -97,6 +97,9 @@ jobs:
       - name: Restore cache
         uses: Swatinem/rust-cache@v1
 
+      - name: Delete previous RPM
+        run: rm target/${{ matrix.target }}/generate-rpm/*.rpm
+
       - name: Install Cargo Generate RPM
         uses: actions-rs/cargo@v1
         env:
