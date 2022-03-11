@@ -1,6 +1,6 @@
 # Alerter
 
-[![Crates.io](https://img.shields.io/crates/v/alerter?style=flat-square)](https://crates.io/crates/alerter) [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ultram4rine/alerter/CICD?label=CI%2FCD&logo=github&style=flat-square)](https://github.com/ultram4rine/alerter/actions/workflows/cicd.yml) [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ultram4rine/alerter/Docker%20image?label=Docker%20image&logo=docker&style=flat-square)](https://github.com/ultram4rine/alerter/actions/workflows/docker.yml)
+[![Crates.io](https://img.shields.io/crates/v/alerter?style=flat-square)](https://crates.io/crates/alerter) [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ultram4rine/alerter/CICD?label=CI%2FCD&logo=github&style=flat-square)](https://github.com/ultram4rine/alerter/actions/workflows/cicd.yml)
 
 Telegram bot for alerts from [Alertmanager](https://github.com/prometheus/alertmanager)
 
