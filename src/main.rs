@@ -6,7 +6,7 @@ extern crate pretty_env_logger;
 
 use std::sync::Arc;
 
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use chrono::{DateTime, Local};
 use clap::Parser;
 use dotenv::dotenv;
@@ -30,14 +30,20 @@ struct Args {
     )]
     port: u16,
 
-    #[clap(long, env = "ALERTER_TG", help = "Enable matrix support")]
+    #[clap(
+        long,
+        requires = "tg-token",
+        requires = "tg-chat-id",
+        requires = "tg-template-path",
+        help = "Enable Telegram support"
+    )]
     tg: bool,
 
     #[clap(long, env = "ALERTER_TG_BOT_TOKEN", help = "Telegram bot token.")]
-    tg_token: String,
+    tg_token: Option<String>,
 
     #[clap(long, env = "ALERTER_TG_CHAT_ID", help = "Telegram chat ID.")]
-    tg_chat_id: i64,
+    tg_chat_id: Option<i64>,
 
     #[clap(
         long,
@@ -45,9 +51,16 @@ struct Args {
         default_value = "templates/default.tg.hbs",
         help = "Path to handlebars template file for Telegram."
     )]
-    template_tg_path: String,
+    tg_template_path: String,
 
-    #[clap(long, env = "ALERTER_MATRIX", help = "Enable matrix support")]
+    #[clap(
+        long,
+        requires = "matrix-user",
+        requires = "matrix-pass",
+        requires = "matrix-room-id",
+        requires = "matrix-template-path",
+        help = "Enable Matrix support"
+    )]
     matrix: bool,
 
     #[clap(long, env = "ALERTER_MATRIX_USERNAME", help = "Matrix username")]
@@ -65,7 +78,7 @@ struct Args {
         default_value = "templates/default.matrix.hbs",
         help = "Path to handlebars template file for Matrix."
     )]
-    template_matrix_path: String,
+    matrix_template_path: String,
 }
 
 #[tokio::main]
@@ -74,18 +87,14 @@ async fn main() -> Result<()> {
     dotenv().ok();
     let args = Args::parse();
 
-    if !args.tg && !args.matrix {
-        return Err(anyhow!("Either tg or matrix flag should be specified"));
-    }
-
     let tg_token = args.tg_token;
     let tg_chat_id = args.tg_chat_id;
 
-    let bot = Bot::new(tg_token);
+    let bot = Bot::new(tg_token.unwrap());
 
     let mut hb = Handlebars::new();
-    hb.register_template_file("default_tg", args.template_tg_path)?;
-    hb.register_template_file("default_matrix", args.template_matrix_path)?;
+    hb.register_template_file("default_tg", args.tg_template_path)?;
+    hb.register_template_file("default_matrix", args.matrix_template_path)?;
     handlebars_helper!(eq: |x: str, { compare: str = "firing" }| x == compare);
     handlebars_helper!(since: |x: str| {
         let time = DateTime::parse_from_rfc3339(x).unwrap();
@@ -122,7 +131,7 @@ async fn main() -> Result<()> {
         .and(warp::body::json())
         .and(warp::any().map(move || bot.clone()))
         .and(warp::any().map(move || hb_tg.clone()))
-        .and(warp::any().map(move || tg_chat_id))
+        .and(warp::any().map(move || tg_chat_id.unwrap()))
         .and_then(send_message_tg);
 
     let matrix_route = warp::post()
