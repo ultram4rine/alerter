@@ -1,7 +1,7 @@
 FROM rust:1.59-slim-bullseye as builder
 
-RUN apt update && \ 
-    apt install -y libssl-dev pkg-config cmake build-essential gcc
+RUN apt-get update && \ 
+    apt-get install -y libssl-dev pkg-config cmake build-essential gcc
 
 WORKDIR /usr/src/alerter
 COPY . ./
