@@ -1,12 +1,13 @@
-FROM rust:1.59-alpine3.15 as builder
+FROM rust:1.59-slim-bullseye as builder
 
-RUN apk add musl-dev openssl-dev pkgconfig
+RUN apt update && \ 
+    apt install libssl-dev pkg-config
 
 WORKDIR /usr/src/alerter
 COPY . ./
 RUN cargo build --release
 
-FROM alpine:3.15
+FROM debian:bullseye-slim
 
 RUN addgroup -S alerter && adduser -S alerter -G alerter
 USER alerter
