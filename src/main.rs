@@ -2,6 +2,7 @@ mod duration;
 mod server;
 
 extern crate dotenv;
+extern crate pretty_env_logger;
 
 use std::{fs, sync::Arc};
 
@@ -45,6 +46,7 @@ struct Args {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    pretty_env_logger::init();
     dotenv().ok();
     let args = Args::parse();
 
