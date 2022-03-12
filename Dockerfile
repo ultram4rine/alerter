@@ -1,7 +1,7 @@
 FROM rust:1.59-slim-bullseye as builder
 
 RUN apt update && \ 
-    apt install libssl-dev pkg-config
+    apt install -y libssl-dev pkg-config cmake build-essential gcc
 
 WORKDIR /usr/src/alerter
 COPY . ./
@@ -9,7 +9,7 @@ RUN cargo build --release
 
 FROM debian:bullseye-slim
 
-RUN addgroup -S alerter && adduser -S alerter -G alerter
+RUN adduser --system --group alerter
 USER alerter
 
 WORKDIR /usr/share/alerter
