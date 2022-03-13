@@ -1,4 +1,5 @@
+RUST_LOG='warn'
 ALERTER_LISTEN_PORT=48655
-ALERTER_TMPL_PATH="/etc/alerter/templates/default.hbs"
-ALERTER_TG_BOT_TOKEN=""
+ALERTER_TMPL_PATH='/etc/alerter/templates/default.hbs'
+ALERTER_TG_BOT_TOKEN=''
 ALERTER_TG_CHAT_ID=
