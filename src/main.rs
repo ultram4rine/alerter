@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use chrono::{DateTime, Local};
-use clap::Parser;
+use clap::{ArgGroup, Parser};
 use dotenv::dotenv;
 use handlebars::{handlebars_helper, Handlebars};
 use matrix_sdk::{ruma::UserId, Client};
@@ -20,6 +20,12 @@ use crate::server::{send_message_matrix, send_message_tg};
 
 #[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
+#[clap(group(
+    ArgGroup::new("req_flags")
+        .required(true)
+        .multiple(true)
+        .args(&["tg", "matrix"]),
+))]
 struct Args {
     #[clap(
         short,
@@ -116,7 +122,6 @@ async fn main() -> Result<()> {
     let matrix_user = UserId::try_from(args.matrix_user.unwrap())?;
     let matrix_client = Client::new_from_user_id(matrix_user.clone()).await?;
 
-    // First we need to log in.
     matrix_client
         .login(
             matrix_user.localpart(),
