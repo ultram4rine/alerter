@@ -93,10 +93,37 @@ async fn main() -> Result<()> {
     dotenv().ok();
     let args = Args::parse();
 
-    let tg_token = args.tg_token;
-    let tg_chat_id = args.tg_chat_id;
+    let mut tg_token: String = "".to_owned();
+    let mut tg_chat_id: i64 = 0;
 
-    let bot = Bot::new(tg_token.unwrap());
+    if args.tg {
+        tg_token = args.tg_token.unwrap();
+        tg_chat_id = args.tg_chat_id.unwrap();
+    }
+
+    let bot = Bot::new(tg_token);
+
+    let mut matrix_user: String = "".to_owned();
+    let mut matrix_pass: String = "".to_owned();
+    let mut matrix_room_id: String = "".to_owned();
+
+    if args.matrix {
+        matrix_user = args.matrix_user.unwrap();
+        matrix_pass = args.matrix_pass.unwrap();
+        matrix_room_id = args.matrix_room_id.unwrap();
+    }
+
+    let matrix_user_id = UserId::try_from(matrix_user)?;
+    let matrix_client = Client::new_from_user_id(matrix_user_id.clone()).await?;
+
+    matrix_client
+        .login(
+            matrix_user_id.localpart(),
+            &matrix_pass,
+            Some("Alerter bot"),
+            None,
+        )
+        .await?;
 
     let mut hb = Handlebars::new();
     hb.register_template_file("default_tg", args.tg_template_path)?;
@@ -119,24 +146,12 @@ async fn main() -> Result<()> {
     let hb_tg = Arc::new(hb);
     let hb_matrix = hb_tg.clone();
 
-    let matrix_user = UserId::try_from(args.matrix_user.unwrap())?;
-    let matrix_client = Client::new_from_user_id(matrix_user.clone()).await?;
-
-    matrix_client
-        .login(
-            matrix_user.localpart(),
-            &args.matrix_pass.unwrap(),
-            None,
-            None,
-        )
-        .await?;
-
     let tg_route = warp::post()
         .and(warp::path!("tg"))
         .and(warp::body::json())
         .and(warp::any().map(move || bot.clone()))
         .and(warp::any().map(move || hb_tg.clone()))
-        .and(warp::any().map(move || tg_chat_id.unwrap()))
+        .and(warp::any().map(move || tg_chat_id))
         .and_then(send_message_tg);
 
     let matrix_route = warp::post()
@@ -144,7 +159,7 @@ async fn main() -> Result<()> {
         .and(warp::body::json())
         .and(warp::any().map(move || matrix_client.clone()))
         .and(warp::any().map(move || hb_matrix.clone()))
-        .and(warp::any().map(move || args.matrix_room_id.clone().unwrap()))
+        .and(warp::any().map(move || matrix_room_id.clone()))
         .and_then(send_message_matrix);
 
     let server = warp::serve(tg_route.or(matrix_route));
