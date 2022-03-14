@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- [Matrix](https://matrix.org/) support.
+- [Matrix](https://matrix.org/) support;
+- Change default listen port to `3030`.
 
 ## v0.2.3
 

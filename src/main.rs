@@ -31,7 +31,7 @@ struct Args {
         short,
         long,
         env = "ALERTER_LISTEN_PORT",
-        default_value_t = 48655,
+        default_value_t = 3030,
         help = "Port to listen."
     )]
     port: u16,

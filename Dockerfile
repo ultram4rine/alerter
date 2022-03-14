@@ -26,6 +26,6 @@ WORKDIR /usr/share/alerter
 COPY templates ./
 COPY --from=builder /alerter/target/release/alerter .
 
-EXPOSE 48655/tcp
+EXPOSE 3030/tcp
 
 ENTRYPOINT ["./alerter"]

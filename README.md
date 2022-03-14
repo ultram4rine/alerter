@@ -41,11 +41,11 @@ After preparations:
    - name: alerter_tg
      webhook_configs:
      - send_resolved: true
-       url: 'http://127.0.0.1:48655/tg'
+       url: 'http://127.0.0.1:3030/tg'
    - name: alerter_matrix
      webhook_configs:
      - send_resolved: true
-       url: 'http://127.0.0.1:48655/matrix'
+       url: 'http://127.0.0.1:3030/matrix'
    ```
 
 ### Templating
@@ -105,7 +105,7 @@ Use environment variables or command-line flags to configure `alerter`:
 
 | Environment variable     | Command-line flag      | Default                      | Description                                                               |
 | ------------------------ | ---------------------- | ---------------------------- | ------------------------------------------------------------------------- |
-| ALERTER_LISTEN_PORT      | --port (-p)            | 48655                        | Port to listen.                                                           |
+| ALERTER_LISTEN_PORT      | --port (-p)            | 3030                         | Port to listen.                                                           |
 |                          | --tg                   |                              | Enable Telegram support.                                                  |
 | ALERTER_TG_BOT_TOKEN     | --tg-token             |                              | Telegram bot token. Required for Telegram support.                        |
 | ALERTER_TG_CHAT_ID       | --chat-id              |                              | Telegram chat ID. Required for Telegram support.                          |
