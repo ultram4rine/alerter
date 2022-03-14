@@ -19,12 +19,15 @@ RUN cargo build --release
 
 FROM debian:bullseye-slim
 
+RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
+
 RUN adduser --system --group alerter
 USER alerter
 
 WORKDIR /usr/share/alerter
-COPY templates ./
+COPY templates ./templates
 COPY --from=builder /alerter/target/release/alerter .
+ENV RUST_LOG="warn"
 
 EXPOSE 3030/tcp
 
