@@ -9,7 +9,7 @@ readme = "README.md"
 homepage = "https://github.com/ultram4rine/alerter#readme"
 repository = "https://github.com/ultram4rine/alerter"
 license = "Apache-2.0"
-keywords = ["telegram-bot", "alertmanager"]
+keywords = ["telegram-bot", "matrix-bot", "alertmanager"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
