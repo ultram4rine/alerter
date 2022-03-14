@@ -33,7 +33,7 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-arm-linux-gnueabihf lintian
+          sudo apt-get install -y gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf lintian
 
       - name: Cache OpenSSL on ARM
         if: startsWith(matrix.target, 'arm')
