@@ -93,37 +93,42 @@ async fn main() -> Result<()> {
     dotenv().ok();
     let args = Args::parse();
 
-    let mut tg_token: String = "".to_owned();
+    let tg_token: String;
     let mut tg_chat_id: i64 = 0;
+    let mut bot: Option<Bot> = None;
 
     if args.tg {
         tg_token = args.tg_token.unwrap();
         tg_chat_id = args.tg_chat_id.unwrap();
+
+        bot = Some(Bot::new(tg_token));
     }
 
-    let bot = Bot::new(tg_token);
-
-    let mut matrix_user: String = "".to_owned();
-    let mut matrix_pass: String = "".to_owned();
+    let matrix_user: String;
+    let matrix_pass: String;
     let mut matrix_room_id: String = "".to_owned();
+    let mut matrix_client: Option<Client> = None;
 
     if args.matrix {
         matrix_user = args.matrix_user.unwrap();
         matrix_pass = args.matrix_pass.unwrap();
         matrix_room_id = args.matrix_room_id.unwrap();
+
+        let matrix_user_id = UserId::try_from(matrix_user)?;
+
+        matrix_client = Some(Client::new_from_user_id(matrix_user_id.clone()).await?);
+
+        matrix_client
+            .clone()
+            .unwrap()
+            .login(
+                matrix_user_id.localpart(),
+                &matrix_pass,
+                Some("Alerter bot"),
+                None,
+            )
+            .await?;
     }
-
-    let matrix_user_id = UserId::try_from(matrix_user)?;
-    let matrix_client = Client::new_from_user_id(matrix_user_id.clone()).await?;
-
-    matrix_client
-        .login(
-            matrix_user_id.localpart(),
-            &matrix_pass,
-            Some("Alerter bot"),
-            None,
-        )
-        .await?;
 
     let mut hb = Handlebars::new();
     hb.register_template_file("default_tg", args.tg_template_path)?;
