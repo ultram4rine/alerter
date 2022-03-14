@@ -1,6 +1,11 @@
 name: Packaging
 
-on: [workflow_dispatch, workflow_call]
+on:
+  workflow_dispatch:
+  workflow_call:
+  push:
+    paths:
+      - ".github/workflows/pkg.yml"
 
 jobs:
   deb:
