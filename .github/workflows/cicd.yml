@@ -3,7 +3,6 @@ name: CI/CD
 on:
   push:
     paths-ignore:
-      - ".github/workflows/docker.yml"
       - ".github/workflows/pkg.yml"
       - ".github/dependabot.yml"
       - "templates"
@@ -12,7 +11,6 @@ on:
       - "test.sh"
   pull_request:
     paths-ignore:
-      - ".github/workflows/docker.yml"
       - ".github/workflows/pkg.yml"
       - ".github/dependabot.yml"
       - "templates"
