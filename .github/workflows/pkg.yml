@@ -9,20 +9,52 @@ jobs:
       CARGO_DEB_VER: 1.36.0
     strategy:
       matrix:
-        image:
-          - "ubuntu:20.04"
         target:
           - "x86_64-unknown-linux-gnu"
+          - "armv7-unknown-linux-gnueabihf"
     runs-on: ubuntu-latest
-    container:
-      image: ${{ matrix.image }}
     steps:
-      - name: Install libs
+      - name: Install libs on x86-64
+        if: startsWith(matrix.target, 'arm') != true
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          apt-get update
-          apt-get install -y curl build-essential libssl-dev pkg-config lintian
+          sudo apt-get update
+          sudo apt-get install -y gcc pkg-config libssl-dev lintian
+
+      - name: Install libs on ARM
+        if: startsWith(matrix.target, 'arm')
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-linux-gnueabihf lintian
+
+      - name: Cache OpenSSL on ARM
+        if: startsWith(matrix.target, 'arm')
+        id: cache-openssl-arm
+        uses: actions/cache@v2
+        with:
+          path: /tmp/openssl-1.1.1m/
+          key: openssl-1.1.1m-${{ matrix.target }}
+
+      - name: Install OpenSSL on ARM
+        if: startsWith(matrix.target, 'arm') && steps.cache-openssl-arm.outputs.cache-hit != 'true'
+        run: |
+          cd /tmp
+          wget https://www.openssl.org/source/openssl-1.1.1m.tar.gz
+          echo "f89199be8b23ca45fc7cb9f1d8d3ee67312318286ad030f5316aca6462db6c96  openssl-1.1.1m.tar.gz" | sha256sum -c
+          tar xzf openssl-1.1.1m.tar.gz
+          export MACHINE=armv7
+          export ARCH=arm
+          export CC=arm-linux-gnueabihf-gcc
+          cd openssl-1.1.1m && ./config shared && make && cd -
+
+      - name: Set OpenSSL env vars on ARM
+        if: startsWith(matrix.target, 'arm')
+        run: |
+          echo "OPENSSL_LIB_DIR=/tmp/openssl-1.1.1m/" >> $GITHUB_ENV
+          echo "OPENSSL_INCLUDE_DIR=/tmp/openssl-1.1.1m/include" >> $GITHUB_ENV
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
@@ -40,23 +72,19 @@ jobs:
 
       - name: Install Cargo Deb
         uses: actions-rs/cargo@v1
-        env:
-          CARGO_TARGET: ${{ matrix.target }}
         with:
           command: install
           args: cargo-deb --vers=${{ env.CARGO_DEB_VER }} --locked
 
       - name: Create package
         uses: actions-rs/cargo@v1
-        env:
-          CARGO_TARGET: ${{ matrix.target }}
         with:
           command: deb
-          args: --target ${{ env.CARGO_TARGET }}
+          args: --target=${{ matrix.target }}
 
       - name: Verify package
         run: |
-          # do not use exis codes while errors occured
+          # do not use exit codes while errors occured
           lintian -v target/${{ matrix.target }}/debian/*.deb || true
 
       - name: Upload package
@@ -91,7 +119,7 @@ jobs:
         uses: Swatinem/rust-cache@v1
 
       - name: Delete previous RPM
-        run: rm target/generate-rpm/*.rpm
+        run: rm -f target/generate-rpm/*.rpm
 
       - name: Install Cargo Generate RPM
         uses: actions-rs/cargo@v1
@@ -115,7 +143,7 @@ jobs:
 
       - name: Verify package
         run: |
-          # do not use exis codes while errors occured
+          # do not use exit codes while errors occured
           rpmlint target/generate-rpm/*.rpm || true
 
       - name: Upload package
