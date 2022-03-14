@@ -70,15 +70,9 @@ jobs:
     name: RPM package
     env:
       CARGO_GENERATE_RPM_VER: 0.6.0
-    strategy:
-      matrix:
-        image:
-          - "fedora:34"
-        target:
-          - "x86_64-unknown-linux-gnu"
     runs-on: ubuntu-latest
     container:
-      image: ${{ matrix.image }}
+      image: "fedora:34"
     steps:
       - name: Install libs
         run: dnf install --refresh -y gcc cmake openssl-devel rpmlint
@@ -89,7 +83,6 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-          target: ${{ matrix.target }}
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -98,43 +91,36 @@ jobs:
         uses: Swatinem/rust-cache@v1
 
       - name: Delete previous RPM
-        run: rm target/${{ matrix.target }}/generate-rpm/*.rpm
+        run: rm target/generate-rpm/*.rpm
 
       - name: Install Cargo Generate RPM
         uses: actions-rs/cargo@v1
-        env:
-          CARGO_TARGET: ${{ matrix.target }}
         with:
           command: install
           args: cargo-generate-rpm --vers=${{ env.CARGO_GENERATE_RPM_VER }} --locked
 
       - name: Build binary
         uses: actions-rs/cargo@v1
-        env:
-          CARGO_TARGET: ${{ matrix.target }}
         with:
           command: build
-          args: --release --target ${{ env.CARGO_TARGET }}
+          args: --release
 
       - name: Remove all symbol and relocation information
-        run: strip -s target/${{ matrix.target }}/release/alerter
+        run: strip -s target/release/alerter
 
       - name: Create package
         uses: actions-rs/cargo@v1
-        env:
-          CARGO_TARGET: ${{ matrix.target }}
         with:
           command: generate-rpm
-          args: --target ${{ env.CARGO_TARGET }}
 
       - name: Verify package
         run: |
           # do not use exis codes while errors occured
-          rpmlint target/${{ matrix.target }}/generate-rpm/*.rpm || true
+          rpmlint target/generate-rpm/*.rpm || true
 
       - name: Upload package
         uses: actions/upload-artifact@v3
         with:
           name: alerter-rpm
           path: |
-            target/${{ matrix.target }}/generate-rpm/*.rpm
+            target/generate-rpm/*.rpm
