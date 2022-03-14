@@ -22,7 +22,7 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           apt-get update
-          apt-get install -y curl build-essential libssl-dev pkg-config lintian
+          apt-get install -y curl build-essential cmake libssl-dev pkg-config lintian
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
@@ -81,7 +81,7 @@ jobs:
       image: ${{ matrix.image }}
     steps:
       - name: Install libs
-        run: dnf install --refresh -y gcc cmake openssl-devel rpmlint
+        run: dnf install --refresh -y gcc cmake gcc-c++ openssl-devel rpmlint
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
