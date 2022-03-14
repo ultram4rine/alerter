@@ -112,6 +112,15 @@ jobs:
             ultram4rine/alerter${{ env.DOCKER_TAG }}
             ghcr.io/ultram4rine/alerter${{ env.DOCKER_TAG }}
 
+      - name: Update description on DockerHub
+        uses: peter-evans/dockerhub-description@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ultram4rine/alerter
+          short-description: ${{ github.event.repository.description }}
+
   release:
     name: Release
     runs-on: ubuntu-latest
