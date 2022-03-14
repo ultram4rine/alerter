@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.3
+
+- Fix logging;
+- New Docker image.
+
 ## v0.2.2
 
 - Use [clap](https://github.com/clap-rs/clap).
