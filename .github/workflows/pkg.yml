@@ -25,7 +25,7 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc pkg-config libssl-dev lintian
+          sudo apt-get install -y build-essential cmake pkg-config libssl-dev lintian
 
       - name: Install libs on ARM
         if: startsWith(matrix.target, 'arm')
@@ -108,7 +108,7 @@ jobs:
       image: "fedora:34"
     steps:
       - name: Install libs
-        run: dnf install --refresh -y gcc cmake openssl-devel rpmlint
+        run: dnf install --refresh -y gcc cmake gcc-c++ openssl-devel rpmlint
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1

@@ -21,6 +21,7 @@ dotenv = "0.15"
 futures = "0.3"
 handlebars = "4.2"
 log = "0.4.8"
+matrix-sdk = { version = "0.4.1", features = ["markdown"] }
 pretty_env_logger = "0.4.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -48,7 +49,11 @@ assets = [
         "644",
     ],
 ]
-conf-files = ["/etc/alerter/templates/default.hbs", "/etc/sysconfig/alerter"]
+conf-files = [
+    "/etc/alerter/templates/default.tg.hbs",
+    "/etc/alerter/templates/default.matrix.hbs",
+    "/etc/sysconfig/alerter",
+]
 systemd-units = { unit-name = "alerter", unit-scripts = "pkg/systemd", enable = false }
 maintainer-scripts = "pkg/scripts"
 

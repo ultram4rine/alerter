@@ -4,21 +4,28 @@ mod server;
 extern crate dotenv;
 extern crate pretty_env_logger;
 
-use std::{fs, sync::Arc};
+use std::sync::Arc;
 
 use anyhow::Result;
 use chrono::{DateTime, Local};
-use clap::Parser;
+use clap::{ArgGroup, Parser};
 use dotenv::dotenv;
 use handlebars::{handlebars_helper, Handlebars};
+use matrix_sdk::{ruma::UserId, Client};
 use teloxide::Bot;
 use warp::Filter;
 
 use crate::duration::format_duration;
-use crate::server::send_message;
+use crate::server::{send_message_matrix, send_message_tg};
 
 #[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
+#[clap(group(
+    ArgGroup::new("req_flags")
+        .required(true)
+        .multiple(true)
+        .args(&["tg", "matrix"]),
+))]
 struct Args {
     #[clap(
         short,
@@ -31,17 +38,53 @@ struct Args {
 
     #[clap(
         long,
-        env = "ALERTER_TMPL_PATH",
-        default_value = "templates/default.hbs",
-        help = "Path to handlebars template file."
+        requires = "tg-token",
+        requires = "tg-chat-id",
+        requires = "tg-template-path",
+        help = "Enable Telegram support"
     )]
-    template_path: String,
+    tg: bool,
 
     #[clap(long, env = "ALERTER_TG_BOT_TOKEN", help = "Telegram bot token.")]
-    token: String,
+    tg_token: Option<String>,
 
     #[clap(long, env = "ALERTER_TG_CHAT_ID", help = "Telegram chat ID.")]
-    chat_id: i64,
+    tg_chat_id: Option<i64>,
+
+    #[clap(
+        long,
+        env = "ALERTER_TG_TMPL_PATH",
+        default_value = "templates/default.tg.hbs",
+        help = "Path to handlebars template file for Telegram."
+    )]
+    tg_template_path: String,
+
+    #[clap(
+        long,
+        requires = "matrix-user",
+        requires = "matrix-pass",
+        requires = "matrix-room-id",
+        requires = "matrix-template-path",
+        help = "Enable Matrix support"
+    )]
+    matrix: bool,
+
+    #[clap(long, env = "ALERTER_MATRIX_USERNAME", help = "Matrix username")]
+    matrix_user: Option<String>,
+
+    #[clap(long, env = "ALERTER_MATRIX_PASSWORD", help = "Matrix password")]
+    matrix_pass: Option<String>,
+
+    #[clap(long, env = "ALERTER_MATRIX_ROOM_ID", help = "Matrix room id")]
+    matrix_room_id: Option<String>,
+
+    #[clap(
+        long,
+        env = "ALERTER_MATRIX_TMPL_PATH",
+        default_value = "templates/default.matrix.hbs",
+        help = "Path to handlebars template file for Matrix."
+    )]
+    matrix_template_path: String,
 }
 
 #[tokio::main]
@@ -50,16 +93,46 @@ async fn main() -> Result<()> {
     dotenv().ok();
     let args = Args::parse();
 
-    let listen_port = args.port;
-    let tmpl_path = args.template_path;
-    let token = args.token;
-    let chat_id = args.chat_id;
+    let tg_token: String;
+    let mut tg_chat_id: i64 = 0;
+    let mut bot: Option<Bot> = None;
 
-    let bot = Bot::new(token);
+    if args.tg {
+        tg_token = args.tg_token.unwrap();
+        tg_chat_id = args.tg_chat_id.unwrap();
 
-    let tpl_str = fs::read_to_string(tmpl_path)?;
+        bot = Some(Bot::new(tg_token));
+    }
+
+    let matrix_user: String;
+    let matrix_pass: String;
+    let mut matrix_room_id: String = "".to_owned();
+    let mut matrix_client: Option<Client> = None;
+
+    if args.matrix {
+        matrix_user = args.matrix_user.unwrap();
+        matrix_pass = args.matrix_pass.unwrap();
+        matrix_room_id = args.matrix_room_id.unwrap();
+
+        let matrix_user_id = UserId::try_from(matrix_user)?;
+
+        matrix_client = Some(Client::new_from_user_id(matrix_user_id.clone()).await?);
+
+        matrix_client
+            .clone()
+            .unwrap()
+            .login(
+                matrix_user_id.localpart(),
+                &matrix_pass,
+                Some("Alerter bot"),
+                None,
+            )
+            .await?;
+    }
+
     let mut hb = Handlebars::new();
-    hb.register_template_string("default", tpl_str)?;
+    hb.register_template_file("default_tg", args.tg_template_path)?;
+    hb.register_template_file("default_matrix", args.matrix_template_path)?;
     handlebars_helper!(eq: |x: str, { compare: str = "firing" }| x == compare);
     handlebars_helper!(since: |x: str| {
         let time = DateTime::parse_from_rfc3339(x).unwrap();
@@ -75,19 +148,28 @@ async fn main() -> Result<()> {
     hb.register_helper("since", Box::new(since));
     hb.register_helper("duration", Box::new(duration));
 
-    let hb = Arc::new(hb);
+    let hb_tg = Arc::new(hb);
+    let hb_matrix = hb_tg.clone();
 
-    warp::serve(
-        warp::path::end()
-            .and(warp::post())
-            .and(warp::body::json())
-            .and(warp::any().map(move || bot.clone()))
-            .and(warp::any().map(move || hb.clone()))
-            .and(warp::any().map(move || chat_id))
-            .and_then(send_message),
-    )
-    .run(([0, 0, 0, 0], listen_port))
-    .await;
+    let tg_route = warp::post()
+        .and(warp::path!("tg"))
+        .and(warp::body::json())
+        .and(warp::any().map(move || bot.clone()))
+        .and(warp::any().map(move || hb_tg.clone()))
+        .and(warp::any().map(move || tg_chat_id))
+        .and_then(send_message_tg);
+
+    let matrix_route = warp::post()
+        .and(warp::path!("matrix"))
+        .and(warp::body::json())
+        .and(warp::any().map(move || matrix_client.clone()))
+        .and(warp::any().map(move || hb_matrix.clone()))
+        .and(warp::any().map(move || matrix_room_id.clone()))
+        .and_then(send_message_matrix);
+
+    let server = warp::serve(tg_route.or(matrix_route));
+
+    server.run(([0, 0, 0, 0], args.port)).await;
 
     Ok(())
 }

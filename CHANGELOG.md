@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- [Matrix](https://matrix.org/) support.
+
 ## v0.2.3
 
 - Fix logging;
