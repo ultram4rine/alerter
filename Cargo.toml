@@ -1,6 +1,6 @@
 [package]
 name = "alerter"
-version = "0.2.3"
+version = "0.3.0"
 authors = ["ultram4rine <ultramarine730@gmail.com>"]
 edition = "2021"
 description = "Telegram bot for alerts from Alertmanager"

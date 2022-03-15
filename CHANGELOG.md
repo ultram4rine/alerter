@@ -1,9 +1,10 @@
 # Changelog
 
-## Unreleased
+## v0.3.0
 
 - [Matrix](https://matrix.org/) support;
-- Change default listen port to `3030`.
+- Change default listen port to `3030`;
+- Fix Docker image.
 
 ## v0.2.3
 
