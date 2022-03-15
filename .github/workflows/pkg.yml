@@ -6,6 +6,8 @@ on:
   push:
     paths:
       - ".github/workflows/pkg.yml"
+    branches:
+      - master
 
 jobs:
   deb:
