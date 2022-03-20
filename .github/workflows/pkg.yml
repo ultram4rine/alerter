@@ -148,6 +148,9 @@ jobs:
         with:
           command: generate-rpm
 
+      - name: Add dist name
+        run: mv target/generate-rpm/*.rpm "`ls target/generate-rpm/*.rpm | sed "s/\(.*-\)\([^-]\)\(\..*\)/\1\2$(rpm --eval %{?dist})\3/"`"
+
       - name: Verify package
         run: |
           # do not use exit codes while errors occured
