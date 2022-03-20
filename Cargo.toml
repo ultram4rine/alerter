@@ -60,6 +60,7 @@ maintainer-scripts = "pkg/scripts"
 [package.metadata.generate-rpm]
 auto-req = "auto"
 release = "1"
+license = "ASL 2.0"
 assets = [
     { source = "target/release/alerter", dest = "/usr/bin/alerter", mode = "755" },
     { source = "templates/*", dest = "/etc/alerter/templates", mode = "644", config = true },
