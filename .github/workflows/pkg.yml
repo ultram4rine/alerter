@@ -40,7 +40,7 @@ jobs:
       - name: Cache OpenSSL on ARM
         if: startsWith(matrix.target, 'arm')
         id: cache-openssl-arm
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/openssl-1.1.1m/
           key: openssl-1.1.1m-${{ matrix.target }}
