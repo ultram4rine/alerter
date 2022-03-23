@@ -161,23 +161,23 @@ jobs:
         if: matrix.image == 'centos:7'
         run: echo "CENTOS_BUILD_FLAGS=--payload-compress=gzip" >> $GITHUB_ENV
 
+      - name: Add dist to release
+        run: dist=$(rpm --eval %{?dist}); sed -i -e 's/release = "\(.*\)"/release = "\1'$dist'"/g' Cargo.toml
+
       - name: Create package
         uses: actions-rs/cargo@v1
         with:
           command: generate-rpm
           args: ${{ env.CENTOS_BUILD_FLAGS }}
 
-      - name: Add dist name
-        run: mv target/generate-rpm/*.rpm "`ls target/generate-rpm/*.rpm | sed "s/\(.*-\)\([^-]\)\(\..*\)/\1\2$(rpm --eval %{?dist})\3/"`"
-
       - name: Verify package
         run: |
           # do not use exit codes while errors occured
-          rpmlint target/generate-rpm/*.rpm || true
+          rpmlint target/generate-rpm/alerter-*.rpm || true
 
       - name: Upload package
         uses: actions/upload-artifact@v3
         with:
           name: alerter-rpm
           path: |
-            target/generate-rpm/*.rpm
+            target/generate-rpm/alerter-*.rpm
