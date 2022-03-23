@@ -19,7 +19,7 @@ jobs:
         target:
           - "x86_64-unknown-linux-gnu"
           - "armv7-unknown-linux-gnueabihf"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Install libs on x86-64
         if: startsWith(matrix.target, 'arm') != true
@@ -110,7 +110,7 @@ jobs:
         image:
           - "centos:7"
           - "fedora:34"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     container:
       image: ${{ matrix.image }}
     steps:
