@@ -50,7 +50,7 @@ After preparations:
 
 ### Templating
 
-You can modify default templates for your needs, they are in [Handlebars](https://handlebarsjs.com/guide/) format. For Telegram `alerter` uses [HTML](https://core.telegram.org/bots/api#html-style) style and for Matrix [MarkDown](https://doc.matrix.tu-dresden.de/en/messaging/formatting/) style.
+You can modify default templates for your needs, they are in [Handlebars](https://handlebarsjs.com/guide/) format. For Telegram `alerter` uses [HTML](https://core.telegram.org/bots/api#html-style) style and for Matrix [Markdown](https://doc.matrix.tu-dresden.de/en/messaging/formatting/) style.
 
 ## Installation
 
