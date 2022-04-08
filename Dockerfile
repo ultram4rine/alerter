@@ -1,4 +1,4 @@
-FROM rust:1.59-slim-bullseye as builder
+FROM rust:1.60.0-slim-bullseye as builder
 
 RUN USER=root cargo new --bin alerter
 WORKDIR /alerter
