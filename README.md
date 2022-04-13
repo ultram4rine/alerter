@@ -108,8 +108,8 @@ Use environment variables or command-line flags to configure `alerter`:
 | ALERTER_LISTEN_PORT      | --port (-p)            | 3030                         | Port to listen.                                                           |
 |                          | --tg                   |                              | Enable Telegram support.                                                  |
 | ALERTER_TG_BOT_TOKEN     | --tg-token             |                              | Telegram bot token. Required for Telegram support.                        |
-| ALERTER_TG_CHAT_ID       | --chat-id              |                              | Telegram chat ID. Required for Telegram support.                          |
-| ALERTER_TG_TMPL_PATH     | --template-path        | templates/default.tg.hbs     | Path to handlebars template file. Required for Telegram support.          |
+| ALERTER_TG_CHAT_ID       | --tg-chat-id           |                              | Telegram chat ID. Required for Telegram support.                          |
+| ALERTER_TG_TMPL_PATH     | --tg-template-path     | templates/default.tg.hbs     | Path to handlebars template file. Required for Telegram support.          |
 |                          | --matrix               |                              | Enable Matrix support.                                                    |
 | ALERTER_MATRIX_USERNAME  | --matrix-user          |                              | Matrix username. Required for Matrix support.                             |
 | ALERTER_MATRIX_PASSWORD  | --matrix-pass          |                              | Matrix password. Required for Matrix support.                             |
