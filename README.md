@@ -36,16 +36,16 @@ After preparations:
 
 3. Add `alerter` to `receivers` in your alertmanager.yml:
 
-   ```text
+   ```yaml
    receivers:
-   - name: alerter_tg
-     webhook_configs:
-     - send_resolved: true
-       url: 'http://127.0.0.1:3030/tg'
-   - name: alerter_matrix
-     webhook_configs:
-     - send_resolved: true
-       url: 'http://127.0.0.1:3030/matrix'
+     - name: alerter_tg
+       webhook_configs:
+         - send_resolved: true
+           url: "http://127.0.0.1:3030/tg"
+     - name: alerter_matrix
+       webhook_configs:
+         - send_resolved: true
+           url: "http://127.0.0.1:3030/matrix"
    ```
 
 ### Templating
