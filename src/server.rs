@@ -21,7 +21,7 @@ use matrix_sdk::{
 };
 use teloxide::{
     requests::{Request, Requester},
-    types::ParseMode,
+    types::{ChatId, ParseMode},
     Bot,
 };
 use warp::http::StatusCode;
@@ -46,7 +46,7 @@ pub async fn send_message_tg(
     webhook: WebHook,
     maybe_bot: Option<Bot>,
     hb: Arc<Handlebars<'_>>,
-    chat_id: i64,
+    chat_id: ChatId,
 ) -> Result<impl warp::Reply, Infallible> {
     match maybe_bot {
         Some(bot) => {
