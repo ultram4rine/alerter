@@ -12,7 +12,7 @@ use clap::{ArgGroup, Parser};
 use dotenv::dotenv;
 use handlebars::{handlebars_helper, Handlebars};
 use matrix_sdk::{ruma::UserId, Client};
-use teloxide::Bot;
+use teloxide::{types::ChatId, Bot};
 use warp::Filter;
 
 use crate::duration::format_duration;
@@ -94,12 +94,12 @@ async fn main() -> Result<()> {
     let args = Args::parse();
 
     let tg_token: String;
-    let mut tg_chat_id: i64 = 0;
+    let mut tg_chat_id: ChatId = ChatId(0);
     let mut bot: Option<Bot> = None;
 
     if args.tg {
         tg_token = args.tg_token.unwrap();
-        tg_chat_id = args.tg_chat_id.unwrap();
+        tg_chat_id = ChatId(args.tg_chat_id.unwrap());
 
         bot = Some(Bot::new(tg_token));
     }
