@@ -30,8 +30,9 @@ tokio = { version = "1.16", features = ["rt-multi-thread", "macros"] }
 warp = "0.3"
 
 [package.metadata.deb]
-section = "misc"
+copyright = "Copyright (c) 2022, ultram4rine <ultramarine730@gmail.com>. All rights reserved."
 license-file = ["LICENSE", "0"]
+section = "misc"
 assets = [
     [
         "target/release/alerter",
@@ -49,17 +50,16 @@ assets = [
         "644",
     ],
 ]
+maintainer-scripts = "pkg/scripts"
 conf-files = [
     "/etc/alerter/templates/default.tg.hbs",
     "/etc/alerter/templates/default.matrix.hbs",
     "/etc/sysconfig/alerter",
 ]
+changelog = "target/debian/changelog"
 systemd-units = { unit-name = "alerter", unit-scripts = "pkg/systemd", enable = false }
-maintainer-scripts = "pkg/scripts"
 
 [package.metadata.generate-rpm]
-auto-req = "auto"
-release = "1"
 license = "ASL 2.0"
 assets = [
     { source = "target/release/alerter", dest = "/usr/bin/alerter", mode = "755" },
@@ -69,5 +69,7 @@ assets = [
     { source = "pkg/scripts/postinst", dest = "/usr/share/alerter/scripts/postinst", mode = "755" },
     { source = "pkg/scripts/prerm", dest = "/usr/share/alerter/scripts/prerm", mode = "755" },
 ]
+release = "1"
 post_install_script = "/usr/share/alerter/scripts/postinst"
 pre_uninstall_script = "/usr/share/alerter/scripts/prerm"
+auto-req = "auto"
