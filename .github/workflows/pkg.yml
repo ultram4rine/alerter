@@ -83,6 +83,21 @@ jobs:
           command: install
           args: cargo-deb --vers=${{ env.CARGO_DEB_VER }} --locked
 
+      - name: Create debian changelog
+        run: |
+          if [ ! -d target/debian ]; then
+            mkdir -p target/debian
+          fi
+
+          NEW_VER=$(cargo read-manifest | sed 's/.*"version":"\{0,1\}\([^,"]*\)"\{0,1\}.*/\1/')
+          RFC5322_TS=$(LC_TIME=en_US.UTF-8 date +'%a, %d %b %Y %H:%M:%S %z')
+
+          echo "alerter (${NEW_VER}) unstable; urgency=medium" > target/debian/changelog
+          echo '' >> target/debian/changelog
+          echo "  * See: https://github.com/ultram4rine/alerter/releases/tag/v${NEW_VER}" >> target/debian/changelog
+          echo '' >> target/debian/changelog
+          echo " -- ultram4rine <ultramarine730@gmail.com>  ${RFC5322_TS}" >> target/debian/changelog
+
       - name: Create package
         uses: actions-rs/cargo@v1
         with:
