@@ -3,6 +3,6 @@
 set -e
 
 getent group alerter >/dev/null || groupadd -r alerter
-getent passwd alerter >/dev/null || useradd -r -g alerter -d /usr/share/alrter -s /sbin/nologin -c "Telegram bot for alerts from Alertmanager" alerter
+getent passwd alerter >/dev/null || useradd -r -g alerter -d /usr/share/alerter -s /sbin/nologin -c "Telegram bot for alerts from Alertmanager" alerter
 
 #DEBHELPER#
