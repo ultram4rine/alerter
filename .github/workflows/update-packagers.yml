@@ -27,12 +27,12 @@ jobs:
           case ${{ matrix.packager }} in
             cargo-deb)
               VER_NAME='CARGO_DEB_VER'
-              echo "REPO_URL='https://github.com/kornelski/cargo-deb'" >> $GITHUB_ENV
+              echo "REPO_URL=https://github.com/kornelski/cargo-deb" >> $GITHUB_ENV
               ;;
 
             cargo-generate-rpm)
               VER_NAME='CARGO_GENERATE_RPM_VER'
-              echo "REPO_URL='https://github.com/cat-in-136/cargo-generate-rpm'" >> $GITHUB_ENV
+              echo "REPO_URL=https://github.com/cat-in-136/cargo-generate-rpm" >> $GITHUB_ENV
               ;;
           esac
 
