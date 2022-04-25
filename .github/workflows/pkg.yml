@@ -8,6 +8,9 @@ on:
       - ".github/workflows/pkg.yml"
     branches:
       - master
+  pull_request:
+    paths:
+      - ".github/workflows/pkg.yml"
 
 jobs:
   deb:
