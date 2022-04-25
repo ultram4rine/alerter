@@ -16,7 +16,7 @@ jobs:
   deb:
     name: Deb package
     env:
-      CARGO_DEB_VER: 1.36.0
+      CARGO_DEB_VER: 1.37.0
     strategy:
       matrix:
         target:
