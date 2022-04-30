@@ -1,7 +1,8 @@
 .github
 pkg
+scripts/kac2debian_changelog.py
+scripts/test.sh
 target
 .gitignore
 LICENSE
 *.md
-test.sh
