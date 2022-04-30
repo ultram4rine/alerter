@@ -25,13 +25,13 @@ After preparations:
 2. Optionally check that messages are being sent and properly formatted:
 
    ```sh
-   ./test.sh tg
+   ./scripts/test.sh tg
    ```
 
    Or
 
    ```sh
-   ./test.sh matrix
+   ./scripts/test.sh matrix
    ```
 
 3. Add `alerter` to `receivers` in your alertmanager.yml:

@@ -92,7 +92,7 @@ jobs:
             mkdir -p target/debian
           fi
 
-          python kac2debian_changelog.py --input CHANGELOG.md --output target/debian/changelog --package-name alerter --author ultram4rine --email ultramarine730@gmail.com
+          python scripts/kac2debian_changelog.py --input CHANGELOG.md --output target/debian/changelog --package-name alerter --author ultram4rine --email ultramarine730@gmail.com
 
       - name: Create package
         uses: actions-rs/cargo@v1
