@@ -69,7 +69,7 @@ conf-files = [
     "/etc/alerter/templates/default.matrix.hbs",
     "/etc/sysconfig/alerter",
 ]
-changelog = "target/debian/changelog"
+changelog = "pkg/doc/changelog"
 systemd-units = { unit-name = "alerter", unit-scripts = "pkg/systemd", enable = false }
 
 [package.metadata.generate-rpm]

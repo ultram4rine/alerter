@@ -88,11 +88,7 @@ jobs:
 
       - name: Create debian changelog
         run: |
-          if [ ! -d target/debian ]; then
-            mkdir -p target/debian
-          fi
-
-          python scripts/kac2debian_changelog.py --input CHANGELOG.md --output target/debian/changelog --package-name alerter --author ultram4rine --email ultramarine730@gmail.com
+          python scripts/kac2debian_changelog.py --input CHANGELOG.md --output pkg/doc/changelog --package-name alerter --author ultram4rine --email ultramarine730@gmail.com
 
       - name: Generate man page
         uses: actions-rs/cargo@v1
