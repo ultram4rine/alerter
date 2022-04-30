@@ -134,12 +134,12 @@ jobs:
       - name: Install libs on CentOS
         if: startsWith(matrix.image, 'centos')
         run: |
-          yum update -y && yum install -y epel-release && yum install -y gcc make cmake3 gcc-c++ openssl-devel rpmlint
+          yum update -y && yum install -y epel-release && yum install -y gcc make cmake3 gcc-c++ openssl-devel gzip rpmlint
           ln -s /usr/bin/cmake3 /usr/bin/cmake
 
       - name: Install libs on Fedora
         if: startsWith(matrix.image, 'fedora')
-        run: dnf install --refresh -y gcc cmake gcc-c++ openssl-devel rpmlint
+        run: dnf install --refresh -y gcc cmake gcc-c++ openssl-devel gzip rpmlint
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
@@ -170,6 +170,10 @@ jobs:
         with:
           command: run
           args: --bin=mangen
+
+      - name: Compress man page
+        run: |
+          gzip -c pkg/doc/alerter.1 > pkg/doc/alerter.1.gz
 
       - name: Build binary
         uses: actions-rs/cargo@v1
