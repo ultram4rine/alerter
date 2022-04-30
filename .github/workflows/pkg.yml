@@ -94,6 +94,12 @@ jobs:
 
           python scripts/kac2debian_changelog.py --input CHANGELOG.md --output target/debian/changelog --package-name alerter --author ultram4rine --email ultramarine730@gmail.com
 
+      - name: Generate man page
+        uses: actions-rs/cargo@v1
+        with:
+          command: run
+          args: --bin=mangen
+
       - name: Create package
         uses: actions-rs/cargo@v1
         with:
@@ -158,6 +164,12 @@ jobs:
         with:
           command: install
           args: cargo-generate-rpm --vers=${{ env.CARGO_GENERATE_RPM_VER }} --locked
+
+      - name: Generate man page
+        uses: actions-rs/cargo@v1
+        with:
+          command: run
+          args: --bin=mangen
 
       - name: Build binary
         uses: actions-rs/cargo@v1
