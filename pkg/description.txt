@@ -1,0 +1,4 @@
+Alerter is a free, open source bot with Telegram and Matrix support
+for receiving and sending alerts from Alertmanager to chats via webhooks.
+
+For more information visit https://github.com/ultram4rine/alerter#readme.

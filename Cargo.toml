@@ -32,6 +32,7 @@ warp = "0.3"
 [package.metadata.deb]
 copyright = "Copyright (c) 2022, ultram4rine <ultramarine730@gmail.com>. All rights reserved."
 license-file = ["LICENSE", "0"]
+extended-description-file = "pkg/description.txt"
 section = "misc"
 assets = [
     [
