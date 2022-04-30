@@ -92,14 +92,7 @@ jobs:
             mkdir -p target/debian
           fi
 
-          NEW_VER=$(cargo read-manifest | sed 's/.*"version":"\{0,1\}\([^,"]*\)"\{0,1\}.*/\1/')
-          RFC5322_TS=$(LC_TIME=en_US.UTF-8 date +'%a, %d %b %Y %H:%M:%S %z')
-
-          echo "alerter (${NEW_VER}) unstable; urgency=medium" > target/debian/changelog
-          echo '' >> target/debian/changelog
-          echo "  * See: https://github.com/ultram4rine/alerter/releases/tag/v${NEW_VER}" >> target/debian/changelog
-          echo '' >> target/debian/changelog
-          echo " -- ultram4rine <ultramarine730@gmail.com>  ${RFC5322_TS}" >> target/debian/changelog
+          python kac2debian_changelog.py --input CHANGELOG.md --output target/debian/changelog --package-name alerter --author ultram4rine --email ultramarine730@gmail.com
 
       - name: Create package
         uses: actions-rs/cargo@v1
