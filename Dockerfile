@@ -8,6 +8,7 @@ RUN apt-get update && \
 
 COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
+COPY ./scripts/mangen.rs ./scripts/mangen.rs
 
 RUN cargo build --release
 RUN rm src/*.rs
