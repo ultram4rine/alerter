@@ -26,12 +26,18 @@ use teloxide::{
 };
 use warp::http::StatusCode;
 
+/// Representation of `webhook` from Alertmanager.
+///
+/// See https://prometheus.io/docs/alerting/latest/configuration/#webhook_config.
 #[derive(Serialize, Deserialize)]
 pub struct WebHook {
     pub status: String,
     pub alerts: Vec<Alert>,
 }
 
+/// Representation of `alert` from Alertmanager.
+///
+/// See https://prometheus.io/docs/alerting/latest/configuration/#webhook_config.
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Alert {
@@ -42,6 +48,13 @@ pub struct Alert {
 }
 
 /// Sends message to Telegram chat.
+///
+/// # Arguments
+///
+/// * `webhook` - A `WebHook` from Alertmanager.
+/// * `maybe_bot` - An optional `Bot` instance. If `None`, status code `503` would be returned.
+/// * `hb` - A handlebars registry with `default_tg` template.
+/// * `chat_id` - A `ChatId` of chat to send message to.
 pub async fn send_message_tg(
     webhook: WebHook,
     maybe_bot: Option<Bot>,
@@ -74,6 +87,13 @@ pub async fn send_message_tg(
 }
 
 /// Sends message to Matrix room.
+///
+/// # Arguments
+///
+/// * `webhook` - A `WebHook` from Alertmanager.
+/// * `maybe_client` - An optional `Client` instance. If `None`, status code `503` would be returned.
+/// * `hb` - A handlebars registry with `default_matrix` template.
+/// * `room_id` - An ID of room to send message to.
 pub async fn send_message_matrix(
     webhook: WebHook,
     maybe_client: Option<Client>,

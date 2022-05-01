@@ -1,5 +1,22 @@
 use chrono::Duration;
 
+/// Converts `chrono::Duration` to human-readable format.
+///
+/// # Arguments
+///
+/// * `duration` - A `Duration` to format.
+///
+/// # Examples
+///
+/// ```rust
+/// // Format duration of two weeks:
+/// let time1 = DateTime::parse_from_rfc3339("1990-12-15T22:00:00Z").unwrap();
+/// let time2 = DateTime::parse_from_rfc3339("1990-12-01T22:00:00Z").unwrap();
+/// assert_eq!(
+///     format_duration(time1.signed_duration_since(time2)),
+///     "2 weeks"
+/// );
+/// ```
 pub fn format_duration(duration: Duration) -> String {
     let weeks = duration.num_weeks();
     let days = duration.num_days() - weeks * 7;
@@ -33,6 +50,13 @@ pub fn format_duration(duration: Duration) -> String {
     .to_owned()
 }
 
+/// Formats unit.
+///
+/// # Arguments
+///
+/// * `unit` - A singular pronunciation of unit.
+/// * `units` - A plural pronunciation of unit.
+/// * `count` - A count of units.
 fn format_unit(unit: String, units: String, count: i64) -> String {
     match count {
         0 => "".to_owned(),
