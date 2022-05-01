@@ -22,16 +22,16 @@ After preparations:
 
 1. [Configure](#configuration) `alerter`.
 
-2. Optionally check that messages are being sent and properly formatted:
+2. Optionally check that messages are being sent and properly formatted with that [script](./scripts/test.sh):
 
    ```sh
-   ./scripts/test.sh tg
+   ./test.sh tg
    ```
 
    Or
 
    ```sh
-   ./scripts/test.sh matrix
+   ./test.sh matrix
    ```
 
 3. Add `alerter` to `receivers` in your alertmanager.yml:
@@ -76,7 +76,7 @@ You can install alerter from [crates.io](https://crates.io/crates/alerter):
 cargo install alerter
 ```
 
-Then download [template](./templates/default.hbs) and run.
+Then download needed [template](./templates) and run.
 
 ### Build from source
 
