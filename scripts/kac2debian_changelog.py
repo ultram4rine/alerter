@@ -26,31 +26,33 @@ author = args.author
 email = args.email
 
 
-def remove_md_link(line: str):
-    return re.sub(r"(.*)\[(.*)]\(.*\)(.*)", r"\1\2\3", line)
+def remove_md_link(line_with_link: str):
+    return re.sub(r"(.*)\[(.*)]\(.*\)(.*)", r"\1\2\3", line_with_link)
 
 
 lines = changelog_file.readlines()
-first_ver_entry = True  # Flag for first version occurence
+first_ver_entry = True  # Flag for first version occurrence
 ver_and_date = []
 for line in lines:
-    if re.match("^## \[\d.*]", line):
+    if re.match(r"^## \[\d.*]", line):
         if first_ver_entry:
             first_ver_entry = False
         else:
             new_line = "\n -- {} <{}>  {}\n\n".format(author, email,
-                                                      datetime.strptime(ver_and_date[1], "%Y-%m-%d").replace(tzinfo=timezone.utc).strftime("%a, %d %b %Y %H:%M:%S %z"))
+                                                      datetime.strptime(ver_and_date[1], "%Y-%m-%d").replace(
+                                                          tzinfo=timezone.utc).strftime("%a, %d %b %Y %H:%M:%S %z"))
             debian_changelog_file.write(new_line)
 
         ver_and_date = line[3:].strip().split(" - ")
         new_line = "{} ({}) unstable; urgency=medium\n\n".format(package_name,
                                                                  ver_and_date[0].replace('[', '').replace(']', ''))
         debian_changelog_file.write(new_line)
-    elif re.match("^- .*", line):
+    elif re.match(r"^- .*", line):
         new_line = "  {}\n".format(
             remove_md_link(line).strip().replace("- ", "* ", 1))
         debian_changelog_file.write(new_line)
 
 new_line = "\n -- {} <{}>  {}\n".format(author, email,
-                                        datetime.strptime(ver_and_date[1], "%Y-%m-%d").replace(tzinfo=timezone.utc).strftime("%a, %d %b %Y %H:%M:%S %z"))
+                                        datetime.strptime(ver_and_date[1], "%Y-%m-%d").replace(
+                                            tzinfo=timezone.utc).strftime("%a, %d %b %Y %H:%M:%S %z"))
 debian_changelog_file.write(new_line)
