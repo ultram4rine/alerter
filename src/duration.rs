@@ -43,7 +43,7 @@ pub fn format_duration(duration: Duration) -> String {
     };
 
     format!(
-        "{}{}{}{}{}{}",
+        "{} {} {} {} {} {}",
         f_weeks, f_days, f_hours, f_minutes, f_seconds, f_milliseconds
     )
     .trim()
@@ -60,8 +60,8 @@ pub fn format_duration(duration: Duration) -> String {
 fn format_unit(unit: String, units: String, count: i64) -> String {
     match count {
         0 => "".to_owned(),
-        1 => format!(" 1 {}", unit),
-        _ => format!(" {} {}", count, units),
+        1 => format!("1 {}", unit),
+        _ => format!("{} {}", count, units),
     }
 }
 
