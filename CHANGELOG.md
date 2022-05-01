@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2022-05-02
+
+### Added
+
+- Build RPM package for CentOS 7 too.
+- Added changelog to Deb packages.
+- Added man page to Deb/RPM packages.
+
+### Changed
+
+- Remove apt cache from docker image.
+- Use rust:1.60 as base image for docker image.
+
+### Fixed
+
+- Fixed license field in RPM packages
+- Fixed home directory in post installation script.
+- Fixed extended description in Deb packages.
+
 ## [0.3.0] - 2022-03-15
 
 ### Added
