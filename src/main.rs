@@ -1,5 +1,6 @@
 mod duration;
-mod server;
+mod receivers;
+mod webhook;
 
 extern crate dotenv;
 extern crate pretty_env_logger;
@@ -16,7 +17,8 @@ use teloxide::{types::ChatId, Bot};
 use warp::Filter;
 
 use crate::duration::format_duration;
-use crate::server::{send_message_matrix, send_message_tg};
+use crate::receivers::matrix::send_message_matrix;
+use crate::receivers::telegram::send_message_tg;
 
 #[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
