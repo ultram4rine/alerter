@@ -39,6 +39,7 @@ warp = "0.3"
 [package.metadata.deb]
 copyright = "Copyright (c) 2022, ultram4rine <ultramarine730@gmail.com>. All rights reserved."
 license-file = ["LICENSE", "0"]
+depends = "$auto, libc-bin, passwd"
 extended-description-file = "pkg/doc/description.txt"
 section = "misc"
 assets = [
@@ -87,3 +88,7 @@ release = "1"
 post_install_script = "/usr/share/alerter/scripts/postinst"
 pre_uninstall_script = "/usr/share/alerter/scripts/prerm"
 auto-req = "auto"
+
+[package.metadata.generate-rpm.requires]
+glibc-common = "*"
+shadow-utils = "*"
