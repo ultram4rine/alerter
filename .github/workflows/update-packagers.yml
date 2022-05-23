@@ -52,6 +52,8 @@ jobs:
         with:
           token: ${{ secrets.CREATE_PR_GITHUB_TOKEN }}
           commit-message: Bump ${{ matrix.packager }} from ${{ env.OLD_VER }} to ${{ env.NEW_VER }}
+          committer: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+          author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
           branch: cargo/${{ matrix.packager }}-${{ env.NEW_VER }}
           delete-branch: true
           base: master
