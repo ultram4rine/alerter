@@ -14,7 +14,7 @@ RUN echo "Setting variables for ${TARGETPLATFORM:=linux/amd64}" && \
     linux/arm64) \
     echo "aarch64-unknown-linux-gnu" | tee /tmp/rusttarget; \
     break;; \
-    linux/armv7) \
+    linux/arm/v7) \
     echo "armv7-unknown-linux-gnueabihf" | tee /tmp/rusttarget; \
     break;; \
     *) echo "unsupported platform ${TARGETPLATFORM}";; \
