@@ -1,22 +1,40 @@
-FROM rust:1.60.0-slim-bullseye as builder
+FROM --platform=$BUILDPLATFORM rust:1.60.0-slim-bullseye as builder
 
 RUN USER=root cargo new --bin alerter
 WORKDIR /alerter
 
-RUN apt-get update && \ 
-    apt-get install -y libssl-dev pkg-config cmake build-essential gcc
+ENV PKG_CONFIG_ALLOW_CROSS=1
 
+ARG TARGETPLATFORM
+RUN echo "Setting variables for ${TARGETPLATFORM:=linux/amd64}" && \
+    case "${TARGETPLATFORM}" in \
+    linux/amd64) \
+    echo "x86_64-unknown-linux-gnu"| tee /tmp/rusttarget; \
+    break;; \
+    linux/arm64) \
+    echo "aarch64-unknown-linux-gnu" | tee /tmp/rusttarget; \
+    break;; \
+    *) echo "unsupported platform ${TARGETPLATFORM}";; \
+    esac
+RUN rustup target add "$(cat /tmp/rusttarget)"
+
+RUN dpkg --add-architecture arm64 && apt-get update && \ 
+    apt-get install -y pkg-config libssl-dev cmake g++ \
+    libssl-dev:arm64 gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
+COPY .cargo ./.cargo
+COPY ./scripts/mangen.rs ./scripts/mangen.rs
 COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
-COPY ./scripts/mangen.rs ./scripts/mangen.rs
 
-RUN cargo build --release
+RUN cargo build --release --target "$(cat /tmp/rusttarget)"
 RUN rm src/*.rs
+RUN rm ./target/"$(cat /tmp/rusttarget)"/release/deps/alerter*
 
 COPY ./src ./src
 
-RUN rm ./target/release/deps/alerter*
-RUN cargo build --release
+RUN cargo build --release --target "$(cat /tmp/rusttarget)"
+RUN mv ./target/"$(cat /tmp/rusttarget)"/release/alerter ./target/release/
 
 FROM debian:bullseye-slim
 
