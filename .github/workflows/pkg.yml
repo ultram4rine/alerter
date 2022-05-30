@@ -36,7 +36,7 @@ jobs:
         run: |
           sudo dpkg --add-architecture armhf
           sudo sed 's/deb http/deb \[arch=amd64,i386\] http/' -i /etc/apt/sources.list
-          tee -a /etc/apt/sources.list > /dev/null <<EOF
+          sudo tee -a /etc/apt/sources.list > /dev/null <<EOF
           deb [arch=armhf] http://ports.ubuntu.com/ focal main universe restricted multiverse
           deb [arch=armhf] http://ports.ubuntu.com/ focal-updates main universe restricted multiverse
           deb [arch=armhf] http://ports.ubuntu.com/ focal-security main universe restricted multiverse
