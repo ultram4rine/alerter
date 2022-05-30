@@ -34,7 +34,7 @@ jobs:
       - name: Install libs for ARMv7
         if: matrix.target == 'armv7-unknown-linux-gnueabihf'
         run: |
-          sudo dpkg dpkg --add-architecture armhf
+          sudo dpkg --add-architecture armhf
           sudo apt-get update
           sudo apt-get install -y libssl-dev:armhf gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf lintian
 
