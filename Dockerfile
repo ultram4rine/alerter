@@ -14,13 +14,17 @@ RUN echo "Setting variables for ${TARGETPLATFORM:=linux/amd64}" && \
     linux/arm64) \
     echo "aarch64-unknown-linux-gnu" | tee /tmp/rusttarget; \
     break;; \
+    linux/armv7) \
+    echo "armv7-unknown-linux-gnueabihf" | tee /tmp/rusttarget; \
+    break;; \
     *) echo "unsupported platform ${TARGETPLATFORM}";; \
     esac
 RUN rustup target add "$(cat /tmp/rusttarget)"
 
-RUN dpkg --add-architecture arm64 && apt-get update && \ 
+RUN dpkg --add-architecture arm64 armhf && apt-get update && \ 
     apt-get install -y pkg-config libssl-dev cmake g++ \
-    libssl-dev:arm64 gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+    libssl-dev:arm64 gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
+    libssl-dev:armhf gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
 
 COPY .cargo ./.cargo
 COPY ./scripts/mangen.rs ./scripts/mangen.rs
