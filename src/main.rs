@@ -45,16 +45,21 @@ async fn main() -> Result<()> {
         matrix_pass = args.matrix_pass.unwrap();
         matrix_room_id = args.matrix_room_id.unwrap();
 
-        let matrix_user_id = UserId::try_from(matrix_user)?;
+        let matrix_user_id = <&UserId>::try_from(matrix_user.as_str())?;
 
-        matrix_client = Some(Client::new_from_user_id(matrix_user_id.clone()).await?);
+        matrix_client = Some(
+            Client::builder()
+                .user_id(matrix_user_id.clone())
+                .build()
+                .await?,
+        );
 
         matrix_client
             .clone()
             .unwrap()
             .login(
                 matrix_user_id.localpart(),
-                &matrix_pass,
+                matrix_pass.as_str(),
                 Some("Alerter bot"),
                 None,
             )

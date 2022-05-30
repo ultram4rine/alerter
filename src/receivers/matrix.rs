@@ -1,18 +1,15 @@
 use log::warn;
-use std::{
-    convert::{Infallible, TryFrom},
-    sync::Arc,
-};
+use std::{convert::Infallible, sync::Arc};
 
 use handlebars::Handlebars;
 use matrix_sdk::{
     ruma::{
-        api::client::r0::message::send_message_event,
+        api::client::message::send_message_event,
         events::{
-            room::message::{MessageEventContent, MessageType, TextMessageEventContent},
-            AnyMessageEventContent,
+            room::message::{MessageType, RoomMessageEventContent, TextMessageEventContent},
+            AnyMessageLikeEventContent,
         },
-        identifiers::RoomId,
+        RoomId, TransactionId,
     },
     Client,
 };
@@ -44,21 +41,31 @@ pub async fn send_message_matrix(
                 }
             };
 
-            client
+            match client
                 .send(
-                    send_message_event::Request::new(
-                        &RoomId::try_from(room_id).unwrap(),
-                        "1",
-                        &AnyMessageEventContent::RoomMessage(MessageEventContent::new(
+                    match send_message_event::v3::Request::new(
+                        &RoomId::parse(room_id).unwrap(),
+                        &TransactionId::new(),
+                        &AnyMessageLikeEventContent::RoomMessage(RoomMessageEventContent::new(
                             MessageType::Text(TextMessageEventContent::markdown(msg_text)),
                         )),
-                    ),
+                    ) {
+                        Ok(req) => req,
+                        Err(err) => {
+                            warn!("failed to create request: {}", err);
+                            return Ok(StatusCode::INTERNAL_SERVER_ERROR);
+                        }
+                    },
                     None,
                 )
                 .await
-                .unwrap();
-
-            Ok(StatusCode::OK)
+            {
+                Ok(_) => Ok(StatusCode::OK),
+                Err(err) => {
+                    warn!("failed to send message: {}", err);
+                    Ok(StatusCode::INTERNAL_SERVER_ERROR)
+                }
+            }
         }
         None => Ok(StatusCode::SERVICE_UNAVAILABLE),
     }
