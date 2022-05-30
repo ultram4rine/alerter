@@ -101,7 +101,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: ${{ startsWith(github.ref, 'refs/tags/') }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

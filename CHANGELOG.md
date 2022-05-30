@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Build Docker image for ARMv7.
+
 ### Changed
 
 - Use rust:1.61 as base image for docker image.
