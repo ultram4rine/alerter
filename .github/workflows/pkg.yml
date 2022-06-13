@@ -16,7 +16,7 @@ jobs:
   deb:
     name: Deb package
     env:
-      CARGO_DEB_VER: 1.38.0
+      CARGO_DEB_VER: 1.38.1
       DEBIAN_FRONTEND: noninteractive
       PKG_CONFIG_ALLOW_CROSS: 1
     strategy:
