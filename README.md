@@ -22,7 +22,7 @@ After preparations:
 
 1. [Configure](#configuration) `alerter`.
 
-2. Optionally check that messages are being sent and properly formatted with that [script](./scripts/test.sh):
+2. Optionally check that messages are being sent and formatted correctly with this [script](./scripts/test.sh):
 
    ```sh
    ./test.sh tg
