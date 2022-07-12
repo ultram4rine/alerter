@@ -15,6 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         packager: [cargo-deb, cargo-generate-rpm]
+    permissions: read-all|write-all
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -50,10 +51,10 @@ jobs:
         if: env.OLD_VER != env.NEW_VER
         uses: peter-evans/create-pull-request@v4
         with:
-          token: ${{ secrets.CREATE_PR_GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: Bump ${{ matrix.packager }} from ${{ env.OLD_VER }} to ${{ env.NEW_VER }}
           committer: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-          author: GitHub <noreply@github.com>
+          author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
           branch: cargo/${{ matrix.packager }}-${{ env.NEW_VER }}
           delete-branch: true
           base: master
