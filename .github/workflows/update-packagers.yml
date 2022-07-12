@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         packager: [cargo-deb, cargo-generate-rpm]
-    permissions: read-all|write-all
+    permissions: write-all
     steps:
       - name: Checkout
         uses: actions/checkout@v3
