@@ -123,9 +123,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Create release body file
-        run: awk -v ver=$(cargo read-manifest | jq -r .version) '/^#+ \[/ { if (p) { exit }; if ($2 == "["ver"]") { p=1; next } } p && NF' CHANGELOG.md > changes.txt
-
       - name: Download archive
         uses: actions/download-artifact@v3
         with:
@@ -144,10 +141,21 @@ jobs:
           name: alerter-rpm
           path: packages
 
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::$(cargo read-manifest | jq -r .version)
+
+      - name: Create release body
+        id: extract_changes
+        uses: ultram4rine/extract-changes-action@v1
+        with:
+          changelog: CHANGELOG.md
+          version: ${{ steps.get_version.outputs.VERSION }}
+
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          body_path: changes.txt
+          body: ${{ steps.extract_changes.outputs.changes }}
           files: |
             archive/alerter-*.tar.gz
             packages/**/*
