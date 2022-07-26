@@ -19,10 +19,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Install jq
-        run: |
-          sudo apt update
-          sudo apt install -y jq
+
       - name: Get versions and set env vars
         run: |
           case ${{ matrix.packager }} in
