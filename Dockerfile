@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM rust:1.61.0-slim-bullseye as builder
+FROM --platform=$BUILDPLATFORM rust:1.67.1-slim-bullseye as builder
 
 RUN USER=root cargo new --bin alerter
 WORKDIR /alerter
