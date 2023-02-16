@@ -49,7 +49,7 @@ version = "0.3.2"
 dependencies = [
  "anyhow",
  "chrono",
- "clap",
+ "clap 3.2.6",
  "clap_mangen",
  "dotenv",
  "futures",
@@ -398,12 +398,22 @@ dependencies = [
  "atty",
  "bitflags",
  "clap_derive",
- "clap_lex",
+ "clap_lex 0.2.3",
  "indexmap",
  "once_cell",
  "strsim",
  "termcolor",
  "textwrap",
+]
+
+[[package]]
+name = "clap"
+version = "4.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec0b0588d44d4d63a87dbd75c136c166bbfd9a86a31cb89e09906521c7d3f5e3"
+dependencies = [
+ "bitflags",
+ "clap_lex 0.3.1",
 ]
 
 [[package]]
@@ -429,12 +439,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "clap_mangen"
-version = "0.1.9"
+name = "clap_lex"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e16658e2f46d5269f95e4ec0f16594524cfc1e51637af40b2e5118c7c71a9fe1"
+checksum = "783fe232adfca04f90f56201b26d79682d4cd2625e0bc7290b95123afe558ade"
 dependencies = [
- "clap",
+ "os_str_bytes",
+]
+
+[[package]]
+name = "clap_mangen"
+version = "0.2.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "48283ce8d5cd9513633949a674a0442bcb507ab61ed6533863437052ddbb494b"
+dependencies = [
+ "clap 4.1.6",
  "roff",
 ]
 
